@@ -310,7 +310,24 @@ let timeLabel=m>=timeMin(last.end)?`${last.end}`:`${active.start}–${active.end
 let progressClass=m>=timeMin(last.end)?'complete-progress':active.type==='break'?'break-progress':'';
 el.innerHTML=`<div class="live-register-title"><h2>${esc(live.className)}</h2></div><div class="period-progress-wrap ${progressClass}"><div class="period-progress-head"><span>${esc(label)}</span><span>${esc(timeLabel)}</span></div><div class="period-progress-track"><div class="period-progress-fill" style="width:${progress.toFixed(2)}%"></div></div></div><div class="register-list" style="margin-top:12px">${live.learnerIds.map(id=>{let holiday=isLearnerOnHoliday(id,live.date,live.classId),checked=!!live.present?.[id],mins=learnerLiveMinutes(id);return `<div class="tick-card ${checked?'checked':''} ${holiday?'holiday-card':''}" ${holiday?'':`onclick="tickLearner('${id}')"`}><div class="tick-name">${esc(learnerName(id))}</div><div class="tick-attendance">${holiday?'<span class="holiday-badge">On holiday</span>':`<span>${minText(mins)}</span>`}</div><div class="tick-box">${holiday?'—':checked?'✓':''}</div></div>`}).join('')}</div>`
 }
-function processClock(){if(!state.live)return renderLive();let sessions=liveSessions(),last=sessions[sessions.length-1];if(last&&nowMinutes()>=timeMin(last.end)){completeDay(true);return}renderLive()}
+function liveScheduledEnd(live=state.live){
+if(!live)return null;
+let sessions=liveSessions(live),last=sessions[sessions.length-1];
+if(!last||!live.date)return null;
+return new Date(`${live.date}T${last.end}:00`)
+}
+function recoverOverdueRegister(){
+if(!state.live)return false;
+let scheduledEnd=liveScheduledEnd(state.live);
+if(!scheduledEnd||now().getTime()<scheduledEnd.getTime())return false;
+completeDay(true);
+return true
+}
+function processClock(){
+if(!state.live)return renderLive();
+if(recoverOverdueRegister())return;
+renderLive()
+}
 
 function logAttendancePercent(log,r){if(r.holiday)return 'Holiday';if(!log.plannedMinutes)return '0%';return `${Math.round(r.creditedMinutes/log.plannedMinutes*1000)/10}%`}
 function deleteRegisterById(id){
@@ -347,7 +364,7 @@ document.addEventListener('click',event=>{const learnerBtn=event.target.closest(
 
 function renderAll(){renderOverview();renderLearners();renderScheduledRegisters();renderClasses();renderLive();renderLogs()}
 window.addEventListener('click',e=>{if(e.target.classList.contains('modal-wrap'))e.target.classList.remove('open')});['ls','le','lw'].forEach(id=>$(id).addEventListener('change',()=>{if($('learnerModal').classList.contains('open'))renderHolidaySummary()}));
-setInterval(()=>{$('topClock').textContent=nowTime();processClock()},1000);$('topClock').textContent=nowTime();renderAll();
+setInterval(()=>{$('topClock').textContent=nowTime();processClock()},1000);$('topClock').textContent=nowTime();recoverOverdueRegister();renderAll();
 </script>
 
 <div id="apDurationPicker" class="time-picker-overlay" aria-hidden="true">
