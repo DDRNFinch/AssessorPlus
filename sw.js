@@ -1,11 +1,14 @@
-const CACHE = 'assessorplus-v3-5-return-review-qr';
+const CACHE = 'assessorplus-v3-9-forced-update';
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
   './assessor-logo.png',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './qrcode-browser.js',
+  './main.css',
+  './app.js'
 ];
 
 self.addEventListener('install', event => {
