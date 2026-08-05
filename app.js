@@ -1,4 +1,8 @@
 const STORAGE_KEY = "assessorPlusDepartment";
+const CLASS_STORAGE_KEY = "assessorPlusClassesV08";
+const SESSION_STORAGE_KEY = "assessorPlusActiveSessionV08";
+const REGISTER_HISTORY_KEY = "assessorPlusRegisterHistoryV08";
+const CONNECTION_STORAGE_KEY = "assessorPlusRegisterConnectionV08";
 const pages = [...document.querySelectorAll(".page")];
 const navItems = [...document.querySelectorAll("[data-page-target]")];
 const content = document.getElementById("appContent");
@@ -135,13 +139,20 @@ function renderStatistics(config) {
 }
 
 function renderDashboardAreas(config) {
-  dashboardAreas.innerHTML = config.areas.map(([title, description]) => `
-    <button class="dashboard-area-card" type="button" disabled>
-      <span><strong>${title}</strong><small>${description}</small></span>
-      <span class="status-pill">Soon</span>
-    </button>
-  `).join("");
+  dashboardAreas.innerHTML = config.areas.map(([title, description]) => {
+    const registerArea = title === "Registers" || title === "Attendance";
+    return `
+      <button class="dashboard-area-card" type="button" data-area="${registerArea ? "registers" : "soon"}" ${registerArea ? "" : "disabled"}>
+        <span><strong>${title}</strong><small>${description}</small></span>
+        <span class="status-pill">${registerArea ? "Open" : "Soon"}</span>
+      </button>`;
+  }).join("");
 }
+
+dashboardAreas.addEventListener("click", event => {
+  const button = event.target.closest("[data-area]");
+  if (button?.dataset.area === "registers") showPage("registers");
+});
 
 function applyDepartment(department) {
   selectedDepartment = department;
@@ -208,6 +219,280 @@ if (selectedDepartment) applyDepartment(selectedDepartment);
 else window.addEventListener("load", () => openDepartmentSelector(true), { once: true });
 showPage(location.hash.replace("#", "") || "home");
 
+
+
+// V0.8 automatic register workspace
+const classDialog = document.getElementById("classDialog");
+const classForm = document.getElementById("classForm");
+const classSelect = document.getElementById("classSelect");
+const registerEmpty = document.getElementById("registerEmpty");
+const registerWorkspace = document.getElementById("registerWorkspace");
+const learnerRegisterList = document.getElementById("learnerRegisterList");
+const activeSessionPanel = document.getElementById("activeSessionPanel");
+const registerSettingsDialog = document.getElementById("registerSettingsDialog");
+let classes = JSON.parse(localStorage.getItem(CLASS_STORAGE_KEY) || "[]");
+let activeSession = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) || "null");
+let registerHistory = JSON.parse(localStorage.getItem(REGISTER_HISTORY_KEY) || "[]");
+let registerConnection = JSON.parse(localStorage.getItem(CONNECTION_STORAGE_KEY) || "{}");
+let selectedClassId = classes[0]?.id || "";
+let registerPollTimer = null;
+
+const cleanId = value => String(value || "").replace(/\D/g, "").slice(0, 16);
+const makeId = (length = 16) => {
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  return [...bytes].map(byte => String(byte % 10)).join("");
+};
+const saveClasses = () => localStorage.setItem(CLASS_STORAGE_KEY, JSON.stringify(classes));
+const saveSession = () => {
+  if (activeSession) localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(activeSession));
+  else localStorage.removeItem(SESSION_STORAGE_KEY);
+};
+const currentClass = () => classes.find(item => item.id === selectedClassId) || classes[0] || null;
+
+function parseLearners(text) {
+  const seen = new Set();
+  return String(text || "").split(/\n+/).map(line => {
+    const [namePart, idPart] = line.split(",");
+    const id = cleanId(idPart);
+    const name = String(namePart || "").trim();
+    if (!name || id.length !== 16 || seen.has(id)) return null;
+    seen.add(id);
+    return { name, id };
+  }).filter(Boolean);
+}
+
+function updateRegisterHomeStats() {
+  if (!selectedDepartment || !["Tutor", "Assessor"].includes(selectedDepartment)) return;
+  const completed = registerHistory.length;
+  const learners = classes.reduce((total, item) => total + item.learners.length, 0);
+  const stats = [...homeStatistics.querySelectorAll(".statistic-card")];
+  const registerCard = stats.find(card => card.querySelector(".statistic-label")?.textContent.includes("Registers"));
+  const learnerCard = stats.find(card => card.querySelector(".statistic-label")?.textContent === "Learners");
+  if (registerCard) registerCard.querySelector("strong").textContent = activeSession ? "1" : "0";
+  if (learnerCard) learnerCard.querySelector("strong").textContent = learners;
+  if (completed && stats[0]?.querySelector("strong")?.textContent === "—") {
+    const all = registerHistory.flatMap(item => item.learners || []);
+    const present = all.filter(item => ["Present", "Late"].includes(item.status)).length;
+    stats[0].querySelector("strong").textContent = all.length ? `${Math.round(present / all.length * 100)}%` : "—";
+  }
+}
+
+function renderClassSelect() {
+  registerEmpty.hidden = classes.length > 0;
+  registerWorkspace.hidden = classes.length === 0;
+  if (!classes.length) return;
+  if (!classes.some(item => item.id === selectedClassId)) selectedClassId = classes[0].id;
+  classSelect.innerHTML = classes.map(item => `<option value="${item.id}" ${item.id === selectedClassId ? "selected" : ""}>${item.name}</option>`).join("");
+  renderRegister();
+  updateRegisterHomeStats();
+}
+
+function getSessionForClass() {
+  return activeSession?.classId === selectedClassId ? activeSession : null;
+}
+
+function renderRegister() {
+  const group = currentClass();
+  if (!group) return;
+  document.getElementById("sessionClassName").textContent = group.name;
+  document.getElementById("sessionSummary").textContent = `${group.start}–${group.end} · late after ${group.lateMinutes} minutes · ${group.learners.length} learners`;
+  const session = getSessionForClass();
+  activeSessionPanel.hidden = !session;
+  document.getElementById("startSessionButton").hidden = Boolean(session);
+  if (session) {
+    const started = new Date(session.startedAt);
+    document.getElementById("activeSessionInfo").textContent = `${started.toLocaleDateString("en-GB")} · started ${started.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"})} · session ${session.id}`;
+  }
+  const records = session?.learners || group.learners.map(learner => ({...learner, status:"Unconfirmed", checkedAt:null, source:"—"}));
+  learnerRegisterList.innerHTML = records.length ? records.map(record => `
+    <article class="learner-row" data-learner-id="${record.id}">
+      <div class="learner-name"><strong>${record.name}</strong><small>${record.id.replace(/(\d{4})(?=\d)/g, "$1 ")} · ${record.checkedAt ? new Date(record.checkedAt).toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"}) : "not checked in"}${record.source && record.source !== "—" ? ` · ${record.source}` : ""}</small></div>
+      <div class="status-controls">
+        ${["Present","Late","Absent","Authorised"].map(status => `<button type="button" class="status-button ${record.status === status ? "active" : ""}" data-status="${status}" data-id="${record.id}">${status}</button>`).join("")}
+      </div>
+    </article>`).join("") : `<div class="basic-page"><p>No learners have been added to this class.</p></div>`;
+  renderRegisterStats(records);
+}
+
+function renderRegisterStats(records) {
+  const counts = {Present:0,Late:0,Absent:0,Unconfirmed:0,Authorised:0};
+  records.forEach(item => counts[item.status] = (counts[item.status] || 0) + 1);
+  document.getElementById("registerStats").innerHTML = [
+    ["Present", counts.Present], ["Late", counts.Late], ["Absent", counts.Absent], ["Waiting", counts.Unconfirmed]
+  ].map(([label,value]) => `<div class="register-stat"><strong>${value}</strong><small>${label}</small></div>`).join("");
+}
+
+function openClassDialog(edit = false) {
+  const group = edit ? currentClass() : null;
+  document.getElementById("classDialogTitle").textContent = group ? "Edit class" : "Create class";
+  document.getElementById("classRecordId").value = group?.id || "";
+  document.getElementById("classNameInput").value = group?.name || "";
+  document.getElementById("classStartInput").value = group?.start || "09:00";
+  document.getElementById("classEndInput").value = group?.end || "16:00";
+  document.getElementById("lateMinutesInput").value = group?.lateMinutes ?? 5;
+  document.getElementById("radiusInput").value = group?.radius ?? 150;
+  document.getElementById("classLearnersInput").value = group?.learners.map(item => `${item.name}, ${item.id}`).join("\n") || "";
+  classDialog.showModal();
+}
+
+classForm.addEventListener("submit", event => {
+  event.preventDefault();
+  const id = document.getElementById("classRecordId").value || makeId();
+  const record = {
+    id,
+    name: document.getElementById("classNameInput").value.trim(),
+    start: document.getElementById("classStartInput").value,
+    end: document.getElementById("classEndInput").value,
+    lateMinutes: Number(document.getElementById("lateMinutesInput").value || 5),
+    radius: Number(document.getElementById("radiusInput").value || 150),
+    learners: parseLearners(document.getElementById("classLearnersInput").value)
+  };
+  const index = classes.findIndex(item => item.id === id);
+  if (index >= 0) classes[index] = record; else classes.push(record);
+  selectedClassId = id;
+  saveClasses();
+  classDialog.close();
+  renderClassSelect();
+});
+
+async function getCurrentLocation() {
+  if (!navigator.geolocation) return null;
+  return new Promise(resolve => navigator.geolocation.getCurrentPosition(
+    position => resolve({latitude:position.coords.latitude, longitude:position.coords.longitude, accuracy:position.coords.accuracy}),
+    () => resolve(null),
+    {enableHighAccuracy:true, timeout:10000, maximumAge:60000}
+  ));
+}
+
+async function startRegister() {
+  const group = currentClass();
+  if (!group) return;
+  const location = await getCurrentLocation();
+  activeSession = {
+    id: makeId(12), classId:group.id, className:group.name, date:new Date().toISOString().slice(0,10),
+    startedAt:new Date().toISOString(), location, radius:group.radius, lateMinutes:group.lateMinutes,
+    learners:group.learners.map(item => ({...item,status:"Unconfirmed",checkedAt:null,source:"—"}))
+  };
+  saveSession();
+  renderRegister();
+  startPolling();
+}
+
+function setLearnerStatus(id, status, source = "Manual") {
+  const record = activeSession?.learners.find(item => item.id === id);
+  if (!record) return;
+  record.status = status;
+  if (["Present","Late"].includes(status) && !record.checkedAt) record.checkedAt = new Date().toISOString();
+  record.source = source;
+  saveSession();
+  renderRegister();
+}
+
+function determineStatus(checkedAt) {
+  const group = currentClass();
+  if (!group) return "Present";
+  const [hour, minute] = group.start.split(":").map(Number);
+  const start = new Date(checkedAt); start.setHours(hour, minute + group.lateMinutes, 0, 0);
+  return new Date(checkedAt) <= start ? "Present" : "Late";
+}
+
+function applyCheckin(payload) {
+  if (!activeSession || payload.sessionId !== activeSession.id) return false;
+  const id = cleanId(payload.learnerId);
+  const record = activeSession.learners.find(item => item.id === id);
+  if (!record) return false;
+  const checkedAt = payload.checkedAt || new Date().toISOString();
+  record.status = determineStatus(checkedAt);
+  record.checkedAt = checkedAt;
+  record.source = "Apprentice+";
+  saveSession();
+  renderRegister();
+  return true;
+}
+
+async function fetchCheckins() {
+  if (!activeSession || !registerConnection.endpoint) return;
+  try {
+    const url = new URL(registerConnection.endpoint.replace(/\/$/, "") + "/checkins");
+    url.searchParams.set("sessionId", activeSession.id);
+    const response = await fetch(url, {headers: registerConnection.key ? {"X-Organisation-Key":registerConnection.key} : {}});
+    if (!response.ok) throw new Error("Connection failed");
+    const data = await response.json();
+    (Array.isArray(data) ? data : data.checkins || []).forEach(applyCheckin);
+    document.getElementById("syncNote").textContent = `Connected · last checked ${new Date().toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"})}`;
+  } catch {
+    document.getElementById("syncNote").textContent = "Unable to reach the attendance service. Manual register remains available.";
+  }
+}
+
+function startPolling() {
+  clearInterval(registerPollTimer);
+  if (activeSession && registerConnection.endpoint) {
+    fetchCheckins();
+    registerPollTimer = setInterval(fetchCheckins, 10000);
+  }
+}
+
+function finishRegister() {
+  if (!activeSession) return;
+  activeSession.learners.forEach(item => { if (item.status === "Unconfirmed") item.status = "Absent"; });
+  activeSession.finishedAt = new Date().toISOString();
+  registerHistory.unshift(activeSession);
+  localStorage.setItem(REGISTER_HISTORY_KEY, JSON.stringify(registerHistory));
+  activeSession = null;
+  saveSession();
+  clearInterval(registerPollTimer);
+  renderRegister();
+  updateRegisterHomeStats();
+}
+
+function exportRegisterCsv() {
+  if (!activeSession) return;
+  const rows = [["Learner","Learner ID","Status","Check-in time","Source"], ...activeSession.learners.map(item => [item.name,item.id,item.status,item.checkedAt || "",item.source || ""] )];
+  const csv = rows.map(row => row.map(value => `"${String(value).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `${activeSession.className}-${activeSession.date}-register.csv`; link.click(); URL.revokeObjectURL(link.href);
+}
+
+learnerRegisterList.addEventListener("click", event => {
+  const button = event.target.closest("[data-status]");
+  if (button) setLearnerStatus(button.dataset.id, button.dataset.status);
+});
+document.getElementById("newClassButton").addEventListener("click", () => openClassDialog(false));
+document.getElementById("emptyNewClassButton").addEventListener("click", () => openClassDialog(false));
+document.getElementById("editClassButton").addEventListener("click", () => openClassDialog(true));
+classSelect.addEventListener("change", () => { selectedClassId = classSelect.value; renderRegister(); });
+document.getElementById("startSessionButton").addEventListener("click", startRegister);
+document.getElementById("endSessionButton").addEventListener("click", finishRegister);
+document.getElementById("refreshCheckinsButton").addEventListener("click", fetchCheckins);
+document.getElementById("copySessionButton").addEventListener("click", async () => { if (activeSession) await navigator.clipboard.writeText(activeSession.id); });
+document.getElementById("exportRegisterButton").addEventListener("click", exportRegisterCsv);
+
+const registerChannel = "BroadcastChannel" in window ? new BroadcastChannel("assessor-plus-register") : null;
+registerChannel?.addEventListener("message", event => applyCheckin(event.data || {}));
+window.addEventListener("storage", event => {
+  if (event.key === "assessorPlusIncomingCheckin" && event.newValue) {
+    try { applyCheckin(JSON.parse(event.newValue)); } catch {}
+  }
+});
+
+document.getElementById("registerSettingsRow").addEventListener("click", () => {
+  document.getElementById("attendanceEndpointInput").value = registerConnection.endpoint || "";
+  document.getElementById("organisationKeyInput").value = registerConnection.key || "";
+  registerSettingsDialog.showModal();
+});
+document.getElementById("registerSettingsForm").addEventListener("submit", event => {
+  event.preventDefault();
+  registerConnection = {endpoint:document.getElementById("attendanceEndpointInput").value.trim(), key:document.getElementById("organisationKeyInput").value};
+  localStorage.setItem(CONNECTION_STORAGE_KEY, JSON.stringify(registerConnection));
+  document.getElementById("registerConnectionStatus").textContent = registerConnection.endpoint ? "Connected attendance service configured" : "Local mode — ready for Apprentice+ setup";
+  registerSettingsDialog.close();
+  startPolling();
+});
+document.getElementById("registerConnectionStatus").textContent = registerConnection.endpoint ? "Connected attendance service configured" : "Local mode — ready for Apprentice+ setup";
+renderClassSelect();
+startPolling();
 
 // Future sync architecture placeholder
 const syncArchitecture={
