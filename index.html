@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#6d28d9">
-  <meta name="description" content="Assessor+ — registers, learners, classes and assessor tools.">
+  <meta name="description" content="Assessor+ — a personalised workspace for education teams.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Assessor+">
@@ -21,7 +21,7 @@
         <div class="brand-mark" aria-hidden="true">A+</div>
         <div>
           <h1>Assessor+</h1>
-          <p>Teaching and assessment workspace</p>
+          <p id="roleSubtitle">Personalised education workspace</p>
         </div>
       </div>
       <button id="installButton" class="icon-button" type="button" aria-label="Install Assessor+" hidden>Install</button>
@@ -30,121 +30,70 @@
     <main id="appContent" class="content" tabindex="-1">
       <section class="page active" data-page="dashboard">
         <div class="welcome-card">
-          <p class="eyebrow">ASSessor+ V0.1</p>
-          <h2>Welcome to Assessor+</h2>
-          <p>This is the blank foundation app. Each area is ready for us to build into as the project develops.</p>
+          <p class="eyebrow">ASSESSOR+ V0.2</p>
+          <h2 id="dashboardGreeting">Welcome</h2>
+          <p id="dashboardIntro">Your personalised workspace is ready.</p>
+        </div>
+
+        <div class="dashboard-summary">
+          <article class="summary-card">
+            <span class="summary-label">Department</span>
+            <strong id="departmentName">Not selected</strong>
+            <small>Your workspace type</small>
+          </article>
+          <article class="summary-card">
+            <span class="summary-label">Today</span>
+            <strong>Nothing due</strong>
+            <small>Tasks and sessions will appear here</small>
+          </article>
         </div>
 
         <div class="section-heading">
-          <h3>Quick actions</h3>
+          <h3>Your workspace</h3>
+          <p>A simple overview rather than a second copy of the navigation tabs.</p>
         </div>
 
-        <div class="card-grid">
-          <button class="feature-card" data-go="classes">
-            <span class="feature-icon">C</span>
-            <strong>Classes</strong>
-            <small>Create and manage class templates</small>
-          </button>
-          <button class="feature-card" data-go="learners">
-            <span class="feature-icon">L</span>
-            <strong>Learners</strong>
-            <small>Add learners and create linking IDs</small>
-          </button>
-          <button class="feature-card" data-go="registers">
-            <span class="feature-icon">R</span>
-            <strong>Registers</strong>
-            <small>Start and review attendance sessions</small>
-          </button>
-          <button class="feature-card" data-go="tools">
-            <span class="feature-icon">T</span>
-            <strong>Tools</strong>
-            <small>Settings, exports and support</small>
-          </button>
+        <div class="dashboard-panel">
+          <div class="dashboard-panel-icon">+</div>
+          <div>
+            <h3>Ready to build</h3>
+            <p id="workspaceMessage">Features for your selected department will be added here as Assessor+ develops.</p>
+          </div>
         </div>
       </section>
 
       <section class="page" data-page="classes">
-        <div class="page-title">
-          <div>
-            <p class="eyebrow">CLASS MANAGEMENT</p>
-            <h2>Classes</h2>
-          </div>
-          <button class="primary-button" disabled>+ New class</button>
-        </div>
-        <div class="placeholder-panel">
-          <div class="placeholder-icon">C</div>
-          <h3>Class templates will appear here</h3>
-          <p>This section will hold class names, timetables, scheduled breaks and assigned learners.</p>
-          <span class="status-pill">Placeholder</span>
-        </div>
+        <div class="page-title"><div><p class="eyebrow">WORKSPACE</p><h2>Classes</h2></div></div>
+        <div class="basic-page"><h3>No classes yet</h3><p>Class and group management will be built here.</p></div>
       </section>
 
       <section class="page" data-page="learners">
-        <div class="page-title">
-          <div>
-            <p class="eyebrow">LEARNER MANAGEMENT</p>
-            <h2>Learners</h2>
-          </div>
-          <button class="primary-button" disabled>+ New learner</button>
-        </div>
-        <div class="placeholder-panel">
-          <div class="placeholder-icon">L</div>
-          <h3>Learner profiles will appear here</h3>
-          <p>This section will generate unique 10-digit learner IDs, QR codes and attendance histories.</p>
-          <span class="status-pill">Placeholder</span>
-        </div>
+        <div class="page-title"><div><p class="eyebrow">WORKSPACE</p><h2>Learners</h2></div></div>
+        <div class="basic-page"><h3>No learners yet</h3><p>Learner records and linking details will be built here.</p></div>
       </section>
 
       <section class="page" data-page="registers">
-        <div class="page-title">
-          <div>
-            <p class="eyebrow">ATTENDANCE</p>
-            <h2>Registers</h2>
-          </div>
-          <button class="primary-button" disabled>Start session</button>
-        </div>
-        <div class="placeholder-panel">
-          <div class="placeholder-icon">R</div>
-          <h3>Live registers will appear here</h3>
-          <p>This area will contain session QR codes, live attendance timers, breaks, individual stop controls and finalisation.</p>
-          <span class="status-pill">Placeholder</span>
-        </div>
+        <div class="page-title"><div><p class="eyebrow">WORKSPACE</p><h2>Registers</h2></div></div>
+        <div class="basic-page"><h3>No registers yet</h3><p>Attendance sessions and reports will be built here.</p></div>
       </section>
 
       <section class="page" data-page="tools">
-        <div class="page-title">
-          <div>
-            <p class="eyebrow">APP MANAGEMENT</p>
-            <h2>Tools</h2>
-          </div>
-        </div>
+        <div class="page-title"><div><p class="eyebrow">APP MANAGEMENT</p><h2>Tools</h2></div></div>
         <div class="list-card">
+          <button type="button" class="list-row" id="changeDepartment">
+            <span><strong>Change department</strong><small id="currentDepartmentText">Select your Assessor+ workspace</small></span>
+            <span aria-hidden="true">›</span>
+          </button>
           <button type="button" class="list-row" id="installRow">
-            <span>
-              <strong>Install Assessor+</strong>
-              <small>Add the app to this device</small>
-            </span>
+            <span><strong>Install Assessor+</strong><small>Add the app to this device</small></span>
             <span aria-hidden="true">›</span>
           </button>
           <button type="button" class="list-row" disabled>
-            <span>
-              <strong>Tutor profile</strong>
-              <small>Name, college and department</small>
-            </span>
+            <span><strong>Profile and organisation</strong><small>Personal and workplace settings</small></span>
             <span class="status-pill">Soon</span>
           </button>
           <button type="button" class="list-row" disabled>
-            <span>
-              <strong>Backup and export</strong>
-              <small>App data, PDF and CSV exports</small>
-            </span>
-            <span class="status-pill">Soon</span>
-          </button>
-          <button type="button" class="list-row" disabled>
-            <span>
-              <strong>Diagnostics</strong>
-              <small>Version, storage and error information</small>
-            </span>
+            <span><strong>Backup and export</strong><small>App data, PDF and CSV exports</small></span>
             <span class="status-pill">Soon</span>
           </button>
         </div>
@@ -152,23 +101,31 @@
     </main>
 
     <nav class="bottom-nav" aria-label="Main navigation">
-      <button class="nav-item active" data-page-target="dashboard">
-        <span>⌂</span><small>Home</small>
-      </button>
-      <button class="nav-item" data-page-target="classes">
-        <span>▦</span><small>Classes</small>
-      </button>
-      <button class="nav-item" data-page-target="learners">
-        <span>●</span><small>Learners</small>
-      </button>
-      <button class="nav-item" data-page-target="registers">
-        <span>✓</span><small>Registers</small>
-      </button>
-      <button class="nav-item" data-page-target="tools">
-        <span>⚙</span><small>Tools</small>
-      </button>
+      <button class="nav-item active" data-page-target="dashboard"><span>⌂</span><small>Home</small></button>
+      <button class="nav-item" data-page-target="classes"><span>▦</span><small>Classes</small></button>
+      <button class="nav-item" data-page-target="learners"><span>●</span><small>Learners</small></button>
+      <button class="nav-item" data-page-target="registers"><span>✓</span><small>Registers</small></button>
+      <button class="nav-item" data-page-target="tools"><span>⚙</span><small>Tools</small></button>
     </nav>
   </div>
+
+  <dialog id="departmentDialog" class="department-dialog">
+    <form method="dialog" class="department-card">
+      <div class="setup-logo">A+</div>
+      <p class="eyebrow">PERSONALISE ASSESSOR+</p>
+      <h2>Choose your department</h2>
+      <p>Select the workspace that best matches how you will use the app. You can change this later in Tools.</p>
+      <div class="department-options" id="departmentOptions">
+        <button type="button" data-department="Tutor"><strong>Tutor</strong><small>Teaching, classes and learner support</small></button>
+        <button type="button" data-department="Assessor"><strong>Assessor</strong><small>Assessment, evidence and progress reviews</small></button>
+        <button type="button" data-department="Employer"><strong>Employer</strong><small>Workplace progress and attendance</small></button>
+        <button type="button" data-department="Management"><strong>Management</strong><small>Oversight, performance and reporting</small></button>
+        <button type="button" data-department="Administration"><strong>Administration</strong><small>Records, coordination and compliance</small></button>
+        <button type="button" data-department="Other"><strong>Other</strong><small>Start with a general workspace</small></button>
+      </div>
+      <button id="closeDepartmentDialog" class="secondary-button full-width" value="cancel" hidden>Cancel</button>
+    </form>
+  </dialog>
 
   <dialog id="installDialog">
     <form method="dialog" class="dialog-card">
