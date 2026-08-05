@@ -185,10 +185,26 @@
         <label>Late after (minutes)<input id="lateMinutesInput" type="number" min="0" max="120" value="5" required></label>
         <label>Location radius (metres)<input id="radiusInput" type="number" min="20" max="2000" value="150" required></label>
       </div>
-      <label>Learners <small>One per line: Name, 16-digit ID</small><textarea id="classLearnersInput" rows="7" placeholder="Joe Bloggs, 1234567890123456"></textarea></label>
+      <label>Learners <small>One learner name per line. Assessor+ generates the 16-digit ID automatically.</small><textarea id="classLearnersInput" rows="7" placeholder="Joe Bloggs
+Amy Smith"></textarea></label>
       <div class="dialog-actions">
         <button value="cancel" class="secondary-button">Cancel</button>
         <button class="primary-button" type="submit">Save class</button>
+      </div>
+    </form>
+  </dialog>
+
+
+  <dialog id="learnerIdDialog">
+    <form method="dialog" class="dialog-card learner-id-dialog">
+      <p class="eyebrow">LEARNER ID</p>
+      <h2 id="learnerIdDialogName">Learner</h2>
+      <p>Only the 16-digit number is stored in this QR code. No name or personal details are included.</p>
+      <div id="learnerQrCode" class="learner-qr-code" aria-label="Learner ID QR code"></div>
+      <strong id="learnerIdDialogNumber" class="learner-id-number"></strong>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-button">Close</button>
+        <button id="copyLearnerIdButton" type="button" class="primary-button">Copy ID</button>
       </div>
     </form>
   </dialog>
@@ -217,6 +233,7 @@
     </form>
   </dialog>
 
+  <script src="./qrcode-browser.js"></script>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

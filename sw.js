@@ -1,9 +1,10 @@
-const CACHE_NAME = "assessor-plus-v0.8";
+const CACHE_NAME = "assessor-plus-v0.9";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./main.css",
   "./app.js",
+  "./qrcode-browser.js",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",

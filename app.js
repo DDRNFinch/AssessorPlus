@@ -221,7 +221,7 @@ showPage(location.hash.replace("#", "") || "home");
 
 
 
-// V0.8 automatic register workspace
+// V0.9 learner ID and QR register workspace
 const classDialog = document.getElementById("classDialog");
 const classForm = document.getElementById("classForm");
 const classSelect = document.getElementById("classSelect");
@@ -250,13 +250,23 @@ const saveSession = () => {
 };
 const currentClass = () => classes.find(item => item.id === selectedClassId) || classes[0] || null;
 
+function allLearnerIds() {
+  return new Set(classes.flatMap(group => group.learners || []).map(item => item.id));
+}
+function makeUniqueLearnerId(reserved = new Set()) {
+  const existing = allLearnerIds();
+  let id = "";
+  do { id = makeId(16); } while (existing.has(id) || reserved.has(id));
+  return id;
+}
 function parseLearners(text) {
   const seen = new Set();
   return String(text || "").split(/\n+/).map(line => {
-    const [namePart, idPart] = line.split(",");
-    const id = cleanId(idPart);
-    const name = String(namePart || "").trim();
-    if (!name || id.length !== 16 || seen.has(id)) return null;
+    const parts = line.split(",");
+    const name = String(parts.shift() || "").trim();
+    let id = cleanId(parts.join(","));
+    if (!name) return null;
+    if (id.length !== 16 || seen.has(id)) id = makeUniqueLearnerId(seen);
     seen.add(id);
     return { name, id };
   }).filter(Boolean);
@@ -309,6 +319,7 @@ function renderRegister() {
     <article class="learner-row" data-learner-id="${record.id}">
       <div class="learner-name"><strong>${record.name}</strong><small>${record.id.replace(/(\d{4})(?=\d)/g, "$1 ")} · ${record.checkedAt ? new Date(record.checkedAt).toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"}) : "not checked in"}${record.source && record.source !== "—" ? ` · ${record.source}` : ""}</small></div>
       <div class="status-controls">
+        <button type="button" class="status-button share-id-button" data-share-learner-id="${record.id}">ID / QR</button>
         ${["Present","Late","Absent","Authorised"].map(status => `<button type="button" class="status-button ${record.status === status ? "active" : ""}" data-status="${status}" data-id="${record.id}">${status}</button>`).join("")}
       </div>
     </article>`).join("") : `<div class="basic-page"><p>No learners have been added to this class.</p></div>`;
@@ -455,7 +466,30 @@ function exportRegisterCsv() {
   const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `${activeSession.className}-${activeSession.date}-register.csv`; link.click(); URL.revokeObjectURL(link.href);
 }
 
+
+function showLearnerId(record) {
+  if (!record) return;
+  const dialog = document.getElementById("learnerIdDialog");
+  document.getElementById("learnerIdDialogName").textContent = record.name;
+  document.getElementById("learnerIdDialogNumber").textContent = record.id.replace(/(\d{4})(?=\d)/g, "$1 ");
+  const host = document.getElementById("learnerQrCode");
+  host.replaceChildren();
+  if (window.ApprenticeQR) host.appendChild(window.ApprenticeQR.toCanvas(record.id, 280));
+  document.getElementById("copyLearnerIdButton").onclick = async () => {
+    try { await navigator.clipboard.writeText(record.id); } catch {
+      const area=document.createElement("textarea"); area.value=record.id; document.body.appendChild(area); area.select(); document.execCommand("copy"); area.remove();
+    }
+    document.getElementById("copyLearnerIdButton").textContent = "Copied";
+  };
+  dialog.showModal();
+}
+
 learnerRegisterList.addEventListener("click", event => {
+  const shareButton = event.target.closest("[data-share-learner-id]");
+  if (shareButton) {
+    const record=(activeSession?.learners || currentClass()?.learners || []).find(item=>item.id===shareButton.dataset.shareLearnerId);
+    showLearnerId(record); return;
+  }
   const button = event.target.closest("[data-status]");
   if (button) setLearnerStatus(button.dataset.id, button.dataset.status);
 });
