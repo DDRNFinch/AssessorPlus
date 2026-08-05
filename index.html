@@ -4,144 +4,63 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#6d28d9">
-  <meta name="description" content="Assessor+ standalone class registers.">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Assessor+">
+  <meta name="description" content="Assessor+ tutor class registers.">
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="apple-touch-icon" href="./icon-192.png">
   <link rel="icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
   <link rel="stylesheet" href="./main.css">
   <title>Assessor+</title>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <img class="brand-mark" src="./assessor-logo.png" alt="Assessor+ logo">
-        <div><h1>Assessor+</h1><p>Simple offline registers</p></div>
-      </div>
-      <button id="installButton" class="small-button" type="button" hidden>Install</button>
-    </header>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand"><img src="./assessor-logo.png" alt="Assessor+"><div><h1>Assessor+</h1><p>Tutor register</p></div></div>
+  </header>
 
-    <main id="appContent" class="content">
-      <section class="page active" data-page="home">
-        <div class="hero-card">
-          <p class="eyebrow">ASSESSOR+ V1.4</p>
-          <h2>Class registers, kept simple</h2>
-          <p>Create a class, add learner names, set teaching sessions and tick learners as they arrive.</p>
-          <button class="primary-button" type="button" data-go="registers">Open registers</button>
-        </div>
-        <div class="stats-grid">
-          <article><span>Classes</span><strong id="statClasses">0</strong></article>
-          <article><span>Learners</span><strong id="statLearners">0</strong></article>
-          <article><span>Registers</span><strong id="statRegisters">0</strong></article>
-          <article><span>Today present</span><strong id="statPresent">0</strong></article>
-        </div>
-        <div class="info-card">
-          <h3>How attendance time works</h3>
-          <p>Each class contains one or more teaching sessions. When you tick a learner, Assessor+ records the exact time. Minutes gained by arriving before a session are added to the learner’s minute bank. Banked minutes can cover future lateness while the actual late arrival remains recorded. Absence is never covered. Gaps between sessions are treated as breaks and are not counted.</p>
-        </div>
-      </section>
+  <main class="content">
+    <section class="page active" data-page="home">
+      <div class="hero"><p class="eyebrow">ASSESSOR+ V2.0</p><h2>Simple class registers</h2><p>Create learners, organise them into classes, run a new register for each session and keep every completed register in the logs.</p><button class="primary" data-go="classes">Open classes</button></div>
+      <div class="stats"><article><span>Learners</span><strong id="statLearners">0</strong></article><article><span>Classes</span><strong id="statClasses">0</strong></article><article><span>Register logs</span><strong id="statLogs">0</strong></article><article><span>Total delivered</span><strong id="statHours">0h</strong></article></div>
+    </section>
 
-      <section class="page" data-page="learners">
-        <div class="page-heading">
-          <div><p class="eyebrow">MASTER LEARNER LIST</p><h2>Learners</h2></div>
-          <button id="newLearnerButton" class="primary-button compact" type="button">+ New learner</button>
-        </div>
-        <div id="learnersEmpty" class="empty-state">
-          <div class="empty-icon">👤</div><h3>No learners yet</h3><p>Add learners once, then select them for any class register.</p>
-          <button class="primary-button" type="button" data-new-learner>Add learner</button>
-        </div>
-        <div id="learnerMasterList" class="card-list"></div>
-      </section>
+    <section class="page" data-page="learners">
+      <div class="page-head"><div><p class="eyebrow">LEARNER SECTION</p><h2>Learners</h2></div><button class="primary compact" id="addLearnerBtn">+ Add learner</button></div>
+      <div id="learnerList" class="card-list"></div>
+      <div id="learnerEmpty" class="empty"><h3>No learners yet</h3><p>Create learners here before adding them to a class.</p><button class="primary" data-new-learner>Add first learner</button></div>
+    </section>
 
-      <section class="page" data-page="registers">
-        <div class="page-heading">
-          <div><p class="eyebrow">OFFLINE REGISTER</p><h2>Registers</h2></div>
-          <button id="newClassButton" class="primary-button compact" type="button">+ New class</button>
-        </div>
-        <div id="classesEmpty" class="empty-state">
-          <div class="empty-icon">✓</div><h3>No classes yet</h3><p>Create your first class, add learner names and set the daily sessions.</p>
-          <button class="primary-button" type="button" data-new-class>Create class</button>
-        </div>
-        <div id="classList" class="card-list"></div>
-      </section>
+    <section class="page" data-page="classes">
+      <div class="page-head"><div><p class="eyebrow">CLASS REGISTERS</p><h2>Classes</h2></div><button class="primary compact" id="addClassBtn">+ Create class</button></div>
+      <div id="classList" class="card-list"></div>
+      <div id="classEmpty" class="empty"><h3>No classes yet</h3><p>Create a class, then add learners from the learner section.</p><button class="primary" data-new-class>Create first class</button></div>
+    </section>
 
-      <section class="page" data-page="tools">
-        <div class="page-heading"><div><p class="eyebrow">APP MANAGEMENT</p><h2>Toolbox</h2></div></div>
-        <div class="list-card">
-          <button id="exportBackupButton" class="list-row" type="button"><span><strong>Export backup</strong><small>Download all classes and registers</small></span><span>›</span></button>
-          <label class="list-row file-row"><span><strong>Import backup</strong><small>Restore an Assessor+ backup file</small></span><span>›</span><input id="importBackupInput" type="file" accept="application/json,.json"></label>
-          <button id="clearDataButton" class="list-row danger" type="button"><span><strong>Delete all local data</strong><small>Remove every class and register from this device</small></span><span>›</span></button>
-          <button id="installRow" class="list-row" type="button"><span><strong>Install Assessor+</strong><small>Add it to this device</small></span><span>›</span></button>
-        </div>
-      </section>
+    <section class="page" data-page="logs">
+      <div class="page-head"><div><p class="eyebrow">SAVED REGISTERS</p><h2>Register logs</h2></div></div>
+      <div id="logList" class="card-list"></div>
+      <div id="logEmpty" class="empty"><h3>No completed registers</h3><p>Completed registers will be saved here automatically.</p></div>
+    </section>
 
-      <section class="page" data-page="learner-profile">
-        <button class="back-button" type="button" data-back="learners">‹ Learners</button>
-        <div id="learnerProfile"></div>
-      </section>
+    <section class="page" data-page="learner-profile"><button class="back" data-back="learners">‹ Learners</button><div id="learnerProfile"></div></section>
+    <section class="page" data-page="class-detail"><button class="back" data-back="classes">‹ Classes</button><div id="classDetail"></div></section>
+    <section class="page" data-page="live-register"><button class="back" id="backFromRegister">‹ Class</button><div id="liveRegister"></div></section>
+    <section class="page" data-page="log-detail"><button class="back" data-back="logs">‹ Register logs</button><div id="logDetail"></div></section>
+  </main>
 
-      <section class="page" data-page="class-detail">
-        <button class="back-button" type="button" data-back="registers">‹ Registers</button>
-        <div id="classDetail"></div>
-      </section>
+  <nav class="bottom-nav"><button class="active" data-nav="home">⌂<small>Home</small></button><button data-nav="learners">👤<small>Learners</small></button><button data-nav="classes">✓<small>Classes</small></button><button data-nav="logs">▤<small>Logs</small></button></nav>
+</div>
 
-      <section class="page" data-page="live-register">
-        <button class="back-button" type="button" id="leaveLiveButton">‹ Class</button>
-        <div id="liveRegister"></div>
-      </section>
-    </main>
+<dialog id="learnerDialog"><form id="learnerForm" class="dialog-card"><div class="dialog-head"><div><p class="eyebrow">LEARNER</p><h2 id="learnerDialogTitle">Add learner</h2></div><button type="button" class="close" data-close>×</button></div><input type="hidden" id="learnerId"><label>Name<input id="learnerName" required maxlength="100"></label><div class="two-col"><label>Start date<input id="learnerStart" type="date" required></label><label>End date<input id="learnerEnd" type="date" required></label></div><label>Past hours adjustment<input id="learnerAdjustment" type="number" step="0.25" value="0"><small>Add or deduct hours for registers completed before using Assessor+.</small></label><div class="actions"><button type="button" class="secondary" data-close>Cancel</button><button class="primary" type="submit">Save learner</button></div></form></dialog>
 
-    <nav class="bottom-nav" aria-label="Main navigation">
-      <button class="nav-item active" data-page-target="home"><span>⌂</span><small>Home</small></button>
-      <button class="nav-item" data-page-target="learners"><span>👤</span><small>Learners</small></button>
-      <button class="nav-item" data-page-target="registers"><span>✓</span><small>Registers</small></button>
-      <button class="nav-item" data-page-target="tools"><span>▦</span><small>Toolbox</small></button>
-    </nav>
-  </div>
+<dialog id="classDialog"><form id="classForm" class="dialog-card"><div class="dialog-head"><div><p class="eyebrow">CLASS</p><h2 id="classDialogTitle">Create class</h2></div><button type="button" class="close" data-close>×</button></div><input type="hidden" id="classId"><label>Class name<input id="className" required maxlength="100" placeholder="Bricklaying Tuesday"></label><label>Location<input id="classLocation" maxlength="100" placeholder="Workshop 2"></label><div class="two-col"><label>Scheduled start<input id="classStart" type="time" value="09:00" required></label><label>Scheduled finish<input id="classEnd" type="time" value="15:30" required></label></div><small class="hint">The default register is six taught hours. Breaks can be entered when completing the register.</small><div class="actions"><button type="button" class="secondary" data-close>Cancel</button><button class="primary" type="submit">Save class</button></div></form></dialog>
 
-  <dialog id="classDialog">
-    <form id="classForm" class="dialog-card">
-      <div class="dialog-header"><div><p class="eyebrow">CLASS SETUP</p><h2 id="classDialogTitle">Create class</h2></div><button class="close-button" type="button" data-close-dialog>×</button></div>
-      <input id="editingClassId" type="hidden">
-      <label>Class name<input id="className" required maxlength="80" placeholder="Bricklaying Tuesday"></label>
-      <label>Room or location<input id="classLocation" maxlength="80" placeholder="Workshop 2"></label>
-      <div class="section-title-row"><div><h3>Teaching sessions</h3><p>Breaks are the gaps between these sessions.</p></div><button id="addSessionRow" class="secondary-button compact" type="button">+ Session</button></div>
-      <div id="sessionRows" class="session-editor"></div>
-      <div class="dialog-actions"><button class="secondary-button" type="button" data-close-dialog>Cancel</button><button class="primary-button" type="submit">Save class</button></div>
-    </form>
-  </dialog>
+<dialog id="classLearnersDialog"><form id="classLearnersForm" class="dialog-card"><div class="dialog-head"><div><p class="eyebrow">CLASS LIST</p><h2>Add or remove learners</h2></div><button type="button" class="close" data-close>×</button></div><div id="classLearnerChoices" class="choice-list"></div><div class="actions"><button type="button" class="secondary" data-close>Cancel</button><button class="primary" type="submit">Save class list</button></div></form></dialog>
 
-  <dialog id="learnerDialog">
-    <form id="learnerForm" class="dialog-card small-dialog">
-      <div class="dialog-header"><div><p class="eyebrow">LEARNER RECORD</p><h2 id="learnerDialogTitle">Add learner</h2></div><button class="close-button" type="button" data-close-dialog>×</button></div>
-      <input id="editingLearnerId" type="hidden">
-      <label>Learner name<input id="learnerName" required maxlength="100" autocomplete="off" placeholder="Joe Bloggs"></label>
-      <div class="dialog-actions"><button class="secondary-button" type="button" data-close-dialog>Cancel</button><button class="primary-button" type="submit">Save learner</button></div>
-    </form>
-  </dialog>
+<dialog id="registerDialog"><form id="registerForm" class="dialog-card"><div class="dialog-head"><div><p class="eyebrow">NEW REGISTER</p><h2>Start register</h2></div><button type="button" class="close" data-close>×</button></div><label>Date<input id="registerDate" type="date" required></label><div class="two-col"><label>Scheduled start<input id="registerStart" type="time" required></label><label>Scheduled finish<input id="registerEnd" type="time" required></label></div><label>Break minutes<input id="registerBreak" type="number" min="0" step="5" value="30"></label><div class="actions"><button type="button" class="secondary" data-close>Cancel</button><button class="primary" type="submit">Start register</button></div></form></dialog>
 
-  <dialog id="classLearnersDialog">
-    <form id="classLearnersForm" class="dialog-card">
-      <div class="dialog-header"><div><p class="eyebrow">CLASS LIST</p><h2>Select learners</h2></div><button class="close-button" type="button" data-close-dialog>×</button></div>
-      <p class="meta">Tick the learners who belong to this class.</p>
-      <div id="classLearnerChoices" class="choice-list"></div>
-      <div class="dialog-actions"><button class="secondary-button" type="button" data-close-dialog>Cancel</button><button class="primary-button" type="submit">Save class list</button></div>
-    </form>
-  </dialog>
+<dialog id="markDialog"><form id="markForm" class="dialog-card"><div class="dialog-head"><div><p class="eyebrow">ATTENDANCE</p><h2 id="markLearnerName">Learner</h2></div><button type="button" class="close" data-close>×</button></div><input type="hidden" id="markLearnerId"><label>Status<select id="markStatus"><option value="present">Present</option><option value="authorised">Authorised absence</option><option value="unauthorised">Unauthorised absence</option></select></label><div id="timeFields" class="two-col"><label>Arrival<input id="markArrival" type="time"></label><label>Leave<input id="markLeave" type="time"></label></div><label>Manual adjustment (minutes)<input id="markAdjustment" type="number" value="0" step="1"><small>Use positive or negative minutes for exceptional adjustments.</small></label><label>Note<textarea id="markNote" rows="3"></textarea></label><div class="actions"><button type="button" class="secondary" data-close>Cancel</button><button class="primary" type="submit">Save attendance</button></div></form></dialog>
 
-  <dialog id="confirmDialog">
-    <form method="dialog" class="dialog-card small-dialog">
-      <h2 id="confirmTitle">Confirm</h2><p id="confirmMessage"></p>
-      <div class="dialog-actions"><button value="cancel" class="secondary-button">Cancel</button><button id="confirmAction" value="confirm" class="danger-button">Delete</button></div>
-    </form>
-  </dialog>
-
-  <dialog id="installDialog"><form method="dialog" class="dialog-card small-dialog"><h2>Install Assessor+</h2><p id="installMessage">Use your browser menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p><div class="dialog-actions"><button value="cancel" class="secondary-button">Close</button><button id="dialogInstallButton" type="button" class="primary-button" hidden>Install</button></div></form></dialog>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./app.js"></script>
+<div id="toast" class="toast"></div>
+<script type="module" src="./app.js"></script>
 </body>
 </html>
