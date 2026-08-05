@@ -41,6 +41,10 @@ function applyDepartment(department) {
   document.getElementById("departmentName").textContent = department;
   document.getElementById("currentDepartmentText").textContent = `${department} workspace selected`;
   document.getElementById("workspaceMessage").textContent = `Future ${department.toLowerCase()} tools, information and shortcuts will appear on this dashboard.`;
+  document.getElementById("pathwayNavLabel").textContent = department;
+  document.getElementById("pathwayPageTitle").textContent = department;
+  document.getElementById("pathwayHeading").textContent = `${department} pathway`;
+  document.getElementById("pathwayDescription").textContent = `${roleCopy[department] || roleCopy.Other}. Your dedicated tools and features will be added here.`;
   departmentDialog.close();
 }
 

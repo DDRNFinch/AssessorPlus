@@ -207,7 +207,7 @@ body {
   bottom: 0;
   min-height: calc(70px + var(--safe-bottom));
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   align-items: start;
   padding: 8px 5px calc(7px + var(--safe-bottom));
   background: rgba(255,255,255,.96);
@@ -344,3 +344,23 @@ dialog::backdrop { background: rgba(20,10,45,.55); }
   .dashboard-summary { grid-template-columns: 1fr; }
   .dashboard-panel { align-items: flex-start; }
 }
+
+.pathway-placeholder {
+  text-align: center;
+  padding: 34px 22px;
+}
+.pathway-icon {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 18px;
+  border-radius: 22px;
+  color: #fff;
+  background: linear-gradient(145deg, var(--purple-500), var(--purple-800));
+  box-shadow: 0 14px 30px rgba(109,40,217,.24);
+  font-size: 24px;
+  font-weight: 900;
+}
+.pathway-placeholder h3 { margin: 0 0 8px; }
+.pathway-placeholder p { max-width: 520px; margin: 0 auto; color: var(--muted); line-height: 1.55; }

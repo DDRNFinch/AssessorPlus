@@ -30,7 +30,7 @@
     <main id="appContent" class="content" tabindex="-1">
       <section class="page active" data-page="dashboard">
         <div class="welcome-card">
-          <p class="eyebrow">ASSESSOR+ V0.3</p>
+          <p class="eyebrow">ASSESSOR+ V0.4</p>
           <h2 id="dashboardGreeting">Welcome</h2>
           <p id="dashboardIntro">Your personalised workspace is ready.</p>
         </div>
@@ -62,19 +62,18 @@
         </div>
       </section>
 
-      <section class="page" data-page="classes">
-        <div class="page-title"><div><p class="eyebrow">WORKSPACE</p><h2>Classes</h2></div></div>
-        <div class="basic-page"><h3>No classes yet</h3><p>Class and group management will be built here.</p></div>
-      </section>
-
-      <section class="page" data-page="learners">
-        <div class="page-title"><div><p class="eyebrow">WORKSPACE</p><h2>Learners</h2></div></div>
-        <div class="basic-page"><h3>No learners yet</h3><p>Learner records and linking details will be built here.</p></div>
-      </section>
-
-      <section class="page" data-page="registers">
-        <div class="page-title"><div><p class="eyebrow">WORKSPACE</p><h2>Registers</h2></div></div>
-        <div class="basic-page"><h3>No registers yet</h3><p>Attendance sessions and reports will be built here.</p></div>
+      <section class="page" data-page="pathway">
+        <div class="page-title">
+          <div>
+            <p class="eyebrow">SELECTED PATHWAY</p>
+            <h2 id="pathwayPageTitle">Your pathway</h2>
+          </div>
+        </div>
+        <div class="basic-page pathway-placeholder">
+          <div class="pathway-icon" aria-hidden="true">A+</div>
+          <h3 id="pathwayHeading">Choose a pathway</h3>
+          <p id="pathwayDescription">Your personalised pathway tools will be built here.</p>
+        </div>
       </section>
 
       <section class="page" data-page="tools">
@@ -102,10 +101,8 @@
 
     <nav class="bottom-nav" aria-label="Main navigation">
       <button class="nav-item active" data-page-target="dashboard"><span>⌂</span><small>Home</small></button>
-      <button class="nav-item" data-page-target="classes"><span>▦</span><small>Classes</small></button>
-      <button class="nav-item" data-page-target="learners"><span>●</span><small>Learners</small></button>
-      <button class="nav-item" data-page-target="registers"><span>✓</span><small>Registers</small></button>
-      <button class="nav-item" data-page-target="tools"><span>⚙</span><small>Tools</small></button>
+      <button class="nav-item" data-page-target="pathway"><span>◆</span><small id="pathwayNavLabel">Pathway</small></button>
+      <button class="nav-item" data-page-target="tools"><span>▦</span><small>Toolbox</small></button>
     </nav>
   </div>
 
