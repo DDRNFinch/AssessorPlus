@@ -24,7 +24,7 @@ let deferredInstallPrompt = null;
 let selectedDepartment = localStorage.getItem(STORAGE_KEY) || "";
 
 function showPage(pageName) {
-  const validPage = pages.some(page => page.dataset.page === pageName) ? pageName : "dashboard";
+  const validPage = pages.some(page => page.dataset.page === pageName) ? pageName : "home";
   pages.forEach(page => page.classList.toggle("active", page.dataset.page === validPage));
   navItems.forEach(item => item.classList.toggle("active", item.dataset.pageTarget === validPage));
   history.replaceState({ page: validPage }, "", `#${validPage}`);
@@ -41,10 +41,10 @@ function applyDepartment(department) {
   document.getElementById("departmentName").textContent = department;
   document.getElementById("currentDepartmentText").textContent = `${department} workspace selected`;
   document.getElementById("workspaceMessage").textContent = `Future ${department.toLowerCase()} tools, information and shortcuts will appear on this dashboard.`;
-  document.getElementById("pathwayNavLabel").textContent = department;
-  document.getElementById("pathwayPageTitle").textContent = department;
-  document.getElementById("pathwayHeading").textContent = `${department} pathway`;
-  document.getElementById("pathwayDescription").textContent = `${roleCopy[department] || roleCopy.Other}. Your dedicated tools and features will be added here.`;
+  document.getElementById("pathwayNavLabel").textContent = "Dashboard";
+  document.getElementById("pathwayPageTitle").textContent = `${department} Dashboard`;
+  document.getElementById("pathwayHeading").textContent = `${department} Dashboard`;
+  document.getElementById("pathwayDescription").textContent = `${roleCopy[department] || roleCopy.Other}. Your dedicated dashboard tools and features will be added here.`;
   departmentDialog.close();
 }
 
@@ -54,7 +54,7 @@ function openDepartmentSelector(forceChoice = false) {
 }
 
 navItems.forEach(item => item.addEventListener("click", () => showPage(item.dataset.pageTarget)));
-window.addEventListener("hashchange", () => showPage(location.hash.replace("#", "") || "dashboard"));
+window.addEventListener("hashchange", () => showPage(location.hash.replace("#", "") || "home"));
 
 document.querySelectorAll("[data-department]").forEach(button => {
   button.addEventListener("click", () => applyDepartment(button.dataset.department));
@@ -103,4 +103,4 @@ if (selectedDepartment) {
   window.addEventListener("load", () => openDepartmentSelector(true), { once: true });
 }
 
-showPage(location.hash.replace("#", "") || "dashboard");
+showPage(location.hash.replace("#", "") || "home");
