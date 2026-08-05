@@ -3,6 +3,8 @@ const CLASS_STORAGE_KEY = "assessorPlusClassesV08";
 const SESSION_STORAGE_KEY = "assessorPlusActiveSessionV08";
 const REGISTER_HISTORY_KEY = "assessorPlusRegisterHistoryV08";
 const CONNECTION_STORAGE_KEY = "assessorPlusRegisterConnectionV08";
+const ATTENDANCE_DB_URL = "https://apprenticeplus-d6a43-default-rtdb.europe-west1.firebasedatabase.app";
+const ATTENDANCE_ROOT = "assessorPlusAttendance";
 const pages = [...document.querySelectorAll(".page")];
 const navItems = [...document.querySelectorAll("[data-page-target]")];
 const content = document.getElementById("appContent");
@@ -376,6 +378,37 @@ async function getCurrentLocation() {
   ));
 }
 
+async function firebaseRequest(path, options = {}) {
+  const url = `${ATTENDANCE_DB_URL}/${ATTENDANCE_ROOT}/${path}.json`;
+  const response = await fetch(url, {cache:"no-store", ...options, headers:{"Content-Type":"application/json", ...(options.headers||{})}});
+  if (!response.ok) throw new Error(`Attendance service error ${response.status}`);
+  return response.status === 204 ? null : response.json();
+}
+
+function publicSessionPayload(session) {
+  return {
+    id:session.id,
+    classId:session.classId,
+    startedAt:session.startedAt,
+    active:true,
+    radius:session.radius,
+    lateMinutes:session.lateMinutes,
+    startTime:currentClass()?.start || "09:00",
+    location:session.location,
+    learnerIds:Object.fromEntries(session.learners.map(item => [item.id,true]))
+  };
+}
+
+async function publishActiveSession() {
+  if (!activeSession) return false;
+  await firebaseRequest(`sessions/${activeSession.id}`, {method:"PUT", body:JSON.stringify(publicSessionPayload(activeSession))});
+  activeSession.synced = true;
+  saveSession();
+  const note=document.getElementById("syncNote");
+  if(note) note.textContent="Live connection active · waiting for Apprentice+ check-ins";
+  return true;
+}
+
 async function startRegister() {
   const group = currentClass();
   if (!group) return;
@@ -383,10 +416,15 @@ async function startRegister() {
   activeSession = {
     id: makeId(12), classId:group.id, className:group.name, date:new Date().toISOString().slice(0,10),
     startedAt:new Date().toISOString(), location, radius:group.radius, lateMinutes:group.lateMinutes,
-    learners:group.learners.map(item => ({...item,status:"Unconfirmed",checkedAt:null,source:"—"}))
+    learners:group.learners.map(item => ({...item,status:"Unconfirmed",checkedAt:null,source:"—"})), synced:false
   };
   saveSession();
   renderRegister();
+  try { await publishActiveSession(); }
+  catch (error) {
+    const note=document.getElementById("syncNote");
+    if(note) note.textContent="Session saved on this phone, but the online register could not start. Check internet and press Refresh.";
+  }
   startPolling();
 }
 
@@ -423,30 +461,30 @@ function applyCheckin(payload) {
 }
 
 async function fetchCheckins() {
-  if (!activeSession || !registerConnection.endpoint) return;
+  if (!activeSession) return;
   try {
-    const url = new URL(registerConnection.endpoint.replace(/\/$/, "") + "/checkins");
-    url.searchParams.set("sessionId", activeSession.id);
-    const response = await fetch(url, {headers: registerConnection.key ? {"X-Organisation-Key":registerConnection.key} : {}});
-    if (!response.ok) throw new Error("Connection failed");
-    const data = await response.json();
-    (Array.isArray(data) ? data : data.checkins || []).forEach(applyCheckin);
-    document.getElementById("syncNote").textContent = `Connected · last checked ${new Date().toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"})}`;
-  } catch {
-    document.getElementById("syncNote").textContent = "Unable to reach the attendance service. Manual register remains available.";
+    if (!activeSession.synced) await publishActiveSession();
+    const data = await firebaseRequest(`checkins/${activeSession.id}`);
+    Object.values(data || {}).forEach(applyCheckin);
+    const note=document.getElementById("syncNote");
+    if(note) note.textContent = `Live · last checked ${new Date().toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit",second:"2-digit"})}`;
+  } catch (error) {
+    const note=document.getElementById("syncNote");
+    if(note) note.textContent = "Unable to reach the live register. Manual marking still works.";
   }
 }
 
 function startPolling() {
   clearInterval(registerPollTimer);
-  if (activeSession && registerConnection.endpoint) {
+  if (activeSession) {
     fetchCheckins();
-    registerPollTimer = setInterval(fetchCheckins, 10000);
+    registerPollTimer = setInterval(fetchCheckins, 3000);
   }
 }
 
-function finishRegister() {
+async function finishRegister() {
   if (!activeSession) return;
+  const finishedSessionId = activeSession.id;
   activeSession.learners.forEach(item => { if (item.status === "Unconfirmed") item.status = "Absent"; });
   activeSession.finishedAt = new Date().toISOString();
   registerHistory.unshift(activeSession);
@@ -456,6 +494,7 @@ function finishRegister() {
   clearInterval(registerPollTimer);
   renderRegister();
   updateRegisterHomeStats();
+  try { await firebaseRequest(`sessions/${finishedSessionId}/active`, {method:"PUT", body:"false"}); } catch {}
 }
 
 function exportRegisterCsv() {
@@ -520,11 +559,11 @@ document.getElementById("registerSettingsForm").addEventListener("submit", event
   event.preventDefault();
   registerConnection = {endpoint:document.getElementById("attendanceEndpointInput").value.trim(), key:document.getElementById("organisationKeyInput").value};
   localStorage.setItem(CONNECTION_STORAGE_KEY, JSON.stringify(registerConnection));
-  document.getElementById("registerConnectionStatus").textContent = registerConnection.endpoint ? "Connected attendance service configured" : "Local mode — ready for Apprentice+ setup";
+  document.getElementById("registerConnectionStatus").textContent = "Automatic live attendance connection";
   registerSettingsDialog.close();
   startPolling();
 });
-document.getElementById("registerConnectionStatus").textContent = registerConnection.endpoint ? "Connected attendance service configured" : "Local mode — ready for Apprentice+ setup";
+document.getElementById("registerConnectionStatus").textContent = "Automatic live attendance connection";
 renderClassSelect();
 startPolling();
 
@@ -534,5 +573,5 @@ const syncArchitecture={
  personIdLength:16,
  dailySummaryHour:0,
  autoSync:true,
- description:"Encrypted updates are queued locally and synchronised to authorised recipients whenever an internet connection is available. A nightly summary is generated after synchronisation."
+ description:"Active registers and pseudonymous learner-ID check-ins synchronise automatically between Assessor+ and Apprentice+. Learner names remain local to Assessor+."
 };

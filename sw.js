@@ -1,4 +1,4 @@
-const CACHE_NAME = "assessor-plus-v0.9";
+const CACHE_NAME = "assessor-plus-v1.0";
 const APP_SHELL = [
   "./",
   "./index.html",
