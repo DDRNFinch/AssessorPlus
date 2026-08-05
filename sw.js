@@ -1,4 +1,4 @@
-const CACHE = 'assessorplus-v3-3-compact-assessments';
+const CACHE = 'assessorplus-v3-5-return-review-qr';
 const ASSETS = [
   './',
   './index.html',
