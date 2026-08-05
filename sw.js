@@ -1,23 +1,40 @@
-<!doctype html><html lang="en-GB"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#6d28d9"><meta name="description" content="Assessor+ class and learner management.">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Assessor+">
-<link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon-192.png"><link rel="apple-touch-icon" href="./icons/icon-192.png">
-<link rel="stylesheet" href="./css/main.css"><title>Assessor+</title></head><body>
-<div class="app-shell">
-<header class="topbar"><div class="brand"><div class="brand-mark">A+</div><div><h1>Assessor+</h1><p id="headerSubtitle">Teaching and assessment workspace</p></div></div><button id="installButton" class="ghost" hidden>Install</button></header>
-<main id="appContent" class="content" tabindex="-1">
-<section class="page active" data-page="dashboard"><div class="hero"><p class="eyebrow">ASSESSOR+ V0.2</p><h2 id="welcomeTitle">Welcome to Assessor+</h2><p id="todayText"></p></div><div class="stats"><article><strong id="classCount">0</strong><span>Classes</span></article><article><strong id="learnerCount">0</strong><span>Learners</span></article><article><strong>0</strong><span>Registers</span></article></div><h3 class="section-title">Quick actions</h3><div class="grid"><button class="tile" data-action="new-class"><b>＋</b><strong>New class</strong><small>Create a reusable class</small></button><button class="tile" data-action="new-learner"><b>＋</b><strong>New learner</strong><small>Generate a linking ID</small></button><button class="tile" data-go="registers"><b>▶</b><strong>Start register</strong><small>Register system coming next</small></button><button class="tile" data-go="tools"><b>⚙</b><strong>Settings</strong><small>Tutor profile and app tools</small></button></div></section>
-<section class="page" data-page="classes"><div class="page-head"><div><p class="eyebrow">CLASS MANAGEMENT</p><h2>Classes</h2></div><button class="primary" data-action="new-class">+ New class</button></div><div id="classesList" class="stack"></div><div id="classesEmpty" class="empty"><div>C</div><h3>No classes yet</h3><p>Create your first reusable class template.</p></div></section>
-<section class="page" data-page="learners"><div class="page-head"><div><p class="eyebrow">LEARNER MANAGEMENT</p><h2>Learners</h2></div><button class="primary" data-action="new-learner">+ New learner</button></div><label class="search"><span>⌕</span><input id="learnerSearch" placeholder="Search learners"></label><div id="learnersList" class="stack"></div><div id="learnersEmpty" class="empty"><div>L</div><h3>No learners yet</h3><p>Add a learner to generate their permanent 10-digit Assessor+ ID.</p></div></section>
-<section class="page" data-page="registers"><div class="page-head"><div><p class="eyebrow">ATTENDANCE</p><h2>Registers</h2></div></div><div class="empty"><div>R</div><h3>Register engine is ready to build next</h3><p>Your saved classes and learners are now in place. The next update will add sessions, QR sign-in and live timers.</p><span class="pill">Foundation complete</span></div></section>
-<section class="page" data-page="tools"><div class="page-head"><div><p class="eyebrow">APP MANAGEMENT</p><h2>Tools</h2></div></div><div class="list"><button id="profileButton"><span><strong>Tutor profile</strong><small id="profileSummary">Set your name, college and department</small></span><i>›</i></button><button id="installRow"><span><strong>Install Assessor+</strong><small>Add it to this device</small></span><i>›</i></button><button id="exportButton"><span><strong>Export backup</strong><small>Download classes, learners and settings</small></span><i>›</i></button><label class="import-row"><span><strong>Import backup</strong><small>Restore a previous Assessor+ backup</small></span><input id="importInput" type="file" accept="application/json" hidden><i>›</i></label><button id="resetButton" class="danger-row"><span><strong>Reset Assessor+</strong><small>Delete local Assessor+ data</small></span><i>›</i></button></div></section>
-</main>
-<nav class="bottom-nav"><button class="nav active" data-page-target="dashboard"><b>⌂</b><small>Home</small></button><button class="nav" data-page-target="classes"><b>▦</b><small>Classes</small></button><button class="nav" data-page-target="learners"><b>●</b><small>Learners</small></button><button class="nav" data-page-target="registers"><b>✓</b><small>Registers</small></button><button class="nav" data-page-target="tools"><b>⚙</b><small>Tools</small></button></nav></div>
-<dialog id="classDialog"><form id="classForm" class="modal"><div class="modal-head"><div><p class="eyebrow">CLASS TEMPLATE</p><h2 id="classDialogTitle">New class</h2></div><button type="button" class="close" data-close>×</button></div><input type="hidden" id="classId"><label>Class name<input id="className" required maxlength="80" placeholder="Bricklaying Level 2"></label><label>Course<input id="classCourse" maxlength="100" placeholder="Bricklayer ST0095"></label><div class="two"><label>Day<select id="classDay"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></label><label>Room<input id="classRoom" maxlength="50" placeholder="Workshop 2"></label></div><div class="two"><label>Start time<input id="classStart" type="time" value="09:00"></label><label>Finish time<input id="classFinish" type="time" value="15:00"></label></div><div class="actions"><button type="button" class="secondary" data-close>Cancel</button><button class="primary" type="submit">Save class</button></div></form></dialog>
-<dialog id="learnerDialog"><form id="learnerForm" class="modal"><div class="modal-head"><div><p class="eyebrow">LEARNER PROFILE</p><h2 id="learnerDialogTitle">New learner</h2></div><button type="button" class="close" data-close>×</button></div><input type="hidden" id="learnerRecordId"><div class="two"><label>First name<input id="firstName" required maxlength="50"></label><label>Surname<input id="surname" required maxlength="50"></label></div><label>Course<input id="learnerCourse" maxlength="100" placeholder="Bricklaying Level 2"></label><label>Employer (optional)<input id="employer" maxlength="100"></label><label>Assign to class<select id="learnerClass"><option value="">Not assigned</option></select></label><div class="actions"><button type="button" class="secondary" data-close>Cancel</button><button class="primary" type="submit">Save learner</button></div></form></dialog>
-<dialog id="profileDialog"><form id="profileForm" class="modal"><div class="modal-head"><div><p class="eyebrow">YOUR DETAILS</p><h2>Tutor profile</h2></div><button type="button" class="close" data-close>×</button></div><label>Tutor name<input id="tutorName" maxlength="80"></label><label>College<input id="collegeName" maxlength="100"></label><label>Department<input id="department" maxlength="100"></label><div class="actions"><button type="button" class="secondary" data-close>Cancel</button><button class="primary" type="submit">Save profile</button></div></form></dialog>
-<dialog id="qrDialog"><div class="modal qr-modal"><div class="modal-head"><div><p class="eyebrow">APPRENTICE+ LINK</p><h2 id="qrLearnerName">Learner</h2></div><button type="button" class="close" data-close>×</button></div><div id="qrCanvas" class="qr-box"></div><p class="id-label">Permanent learner ID</p><p id="qrId" class="big-id"></p><p class="help">The learner will enter this number into Apprentice+ when linking their profile.</p><div class="actions"><button class="primary" type="button" data-close>Done</button></div></div></dialog>
-<dialog id="installDialog"><div class="modal"><div class="modal-head"><h2>Install Assessor+</h2><button type="button" class="close" data-close>×</button></div><p id="installMessage">Open your browser menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p><div class="actions"><button class="primary" id="dialogInstallButton" type="button" hidden>Install</button></div></div></dialog>
-<div id="toast" class="toast" role="status"></div>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script><script type="module" src="./js/app.js"></script></body></html>
+const CACHE_NAME = "assessor-plus-v0.1";
+const APP_SHELL = [
+  "./",
+  "./index.html",
+  "./css/main.css",
+  "./js/app.js",
+  "./manifest.webmanifest",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png"
+];
+
+self.addEventListener("install", event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("fetch", event => {
+  if (event.request.method !== "GET") return;
+
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        return response;
+      })
+      .catch(() => caches.match(event.request).then(match => match || caches.match("./index.html")))
+  );
+});
