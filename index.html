@@ -27,7 +27,7 @@
     <main id="appContent" class="content">
       <section class="page active" data-page="home">
         <div class="hero-card">
-          <p class="eyebrow">ASSESSOR+ V1.1</p>
+          <p class="eyebrow">ASSESSOR+ V1.2</p>
           <h2>Class registers, kept simple</h2>
           <p>Create a class, add learner names, set teaching sessions and tick learners as they arrive.</p>
           <button class="primary-button" type="button" data-go="registers">Open registers</button>
@@ -42,6 +42,18 @@
           <h3>How attendance time works</h3>
           <p>Each class contains one or more teaching sessions. When you tick a learner, Assessor+ records the exact time. Their credited time runs from that tick time to the end of the session. Gaps between sessions are treated as breaks and are not counted.</p>
         </div>
+      </section>
+
+      <section class="page" data-page="learners">
+        <div class="page-heading">
+          <div><p class="eyebrow">MASTER LEARNER LIST</p><h2>Learners</h2></div>
+          <button id="newLearnerButton" class="primary-button compact" type="button">+ New learner</button>
+        </div>
+        <div id="learnersEmpty" class="empty-state">
+          <div class="empty-icon">👤</div><h3>No learners yet</h3><p>Add learners once, then select them for any class register.</p>
+          <button class="primary-button" type="button" data-new-learner>Add learner</button>
+        </div>
+        <div id="learnerMasterList" class="card-list"></div>
       </section>
 
       <section class="page" data-page="registers">
@@ -79,6 +91,7 @@
 
     <nav class="bottom-nav" aria-label="Main navigation">
       <button class="nav-item active" data-page-target="home"><span>⌂</span><small>Home</small></button>
+      <button class="nav-item" data-page-target="learners"><span>👤</span><small>Learners</small></button>
       <button class="nav-item" data-page-target="registers"><span>✓</span><small>Registers</small></button>
       <button class="nav-item" data-page-target="tools"><span>▦</span><small>Toolbox</small></button>
     </nav>
@@ -98,9 +111,19 @@
 
   <dialog id="learnerDialog">
     <form id="learnerForm" class="dialog-card small-dialog">
-      <div class="dialog-header"><div><p class="eyebrow">CLASS LIST</p><h2>Add learner</h2></div><button class="close-button" type="button" data-close-dialog>×</button></div>
+      <div class="dialog-header"><div><p class="eyebrow">LEARNER RECORD</p><h2 id="learnerDialogTitle">Add learner</h2></div><button class="close-button" type="button" data-close-dialog>×</button></div>
+      <input id="editingLearnerId" type="hidden">
       <label>Learner name<input id="learnerName" required maxlength="100" autocomplete="off" placeholder="Joe Bloggs"></label>
-      <div class="dialog-actions"><button class="secondary-button" type="button" data-close-dialog>Cancel</button><button class="primary-button" type="submit">Add learner</button></div>
+      <div class="dialog-actions"><button class="secondary-button" type="button" data-close-dialog>Cancel</button><button class="primary-button" type="submit">Save learner</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="classLearnersDialog">
+    <form id="classLearnersForm" class="dialog-card">
+      <div class="dialog-header"><div><p class="eyebrow">CLASS LIST</p><h2>Select learners</h2></div><button class="close-button" type="button" data-close-dialog>×</button></div>
+      <p class="meta">Tick the learners who belong to this class.</p>
+      <div id="classLearnerChoices" class="choice-list"></div>
+      <div class="dialog-actions"><button class="secondary-button" type="button" data-close-dialog>Cancel</button><button class="primary-button" type="submit">Save class list</button></div>
     </form>
   </dialog>
 
