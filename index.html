@@ -141,6 +141,7 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 .log-tab{border:0;background:transparent;color:var(--muted);font-weight:800;padding:8px 12px;border-radius:8px;cursor:pointer}
 .log-tab.active{background:#ede9fe;color:#5b21b6}
 .log-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.log-select{display:flex;align-items:center;gap:10px;min-width:0;flex:1}.log-select input{width:18px;height:18px;flex:0 0 auto}.export-format-list{display:grid;gap:8px;margin-top:14px}.export-format-row{width:100%;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:12px 14px;display:grid;gap:3px;cursor:pointer;color:inherit}.export-format-row:hover{border-color:var(--purple)}.export-format-row span{font-size:13px;color:var(--muted)}
 .sent-status{font-size:12px;font-weight:800;color:#5b21b6}
 .unsent-status{font-size:12px;font-weight:800;color:#9a3412}
 
@@ -205,8 +206,8 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
       <button id="allLogTab" class="log-tab" type="button" onclick="setLogTab('all')">All logs</button>
     </div>
     <div class="log-toolbar">
-      <div id="logTabSummary" class="muted"></div>
-      <div class="export-actions"><button id="exportCsvBtn" class="btn primary" type="button" onclick="exportUnsentCsv()">Download CSV</button><button id="exportUnsentBtn" class="btn light" type="button" onclick="exportUnsentRegisterPack()">Share to Assessor+</button></div>
+      <div><div id="logTabSummary" class="muted"></div><div id="selectedLogSummary" class="row-meta">0 registers selected</div></div>
+      <div class="export-actions"><button class="btn light" type="button" onclick="selectVisibleLogs()">Select all</button><button id="exportSelectedBtn" class="btn primary" type="button" onclick="openRegisterExport()" disabled>Export selected</button></div>
     </div>
     <div id="logList" class="list"></div>
   </div>
@@ -216,9 +217,10 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 <div class="page-head"><h1>Assessments</h1><div class="actions" id="assessmentHeaderActions"></div></div>
 <div id="assessmentContent"></div>
 </section>
-<section id="settings" class="page"><div class="page-head"><h1>Settings</h1></div><div class="settings-grid"><div class="card"><h3>Assessor+ version</h3><div class="version-line"><strong id="appVersion">V2.9</strong><span id="updateStatus" class="muted">Checking for updates…</span></div><p class="muted">Updates are checked automatically whenever Assessor+ opens. When a new version is ready, you will see what has changed before installing it.</p><button id="checkUpdateBtn" class="btn light" type="button">Check for updates</button></div><div class="card"><h3>Time controls</h3><p class="muted">Every time and duration selector moves in 5-minute increments. Learner time banks are calculated from the first arrival in each teaching session.</p></div><div class="card"><h3>App data</h3><p class="muted">Learners, classes and registers are saved in this browser.</p><button class="btn danger" onclick="if(confirm('Clear all app data?')){localStorage.removeItem(KEY);location.reload()}">Clear app data</button></div></div></section>
+<section id="settings" class="page"><div class="page-head"><h1>Settings</h1></div><div class="settings-grid"><div class="card"><h3>Assessor+ version</h3><div class="version-line"><strong id="appVersion">V3.0</strong><span id="updateStatus" class="muted">Checking for updates…</span></div><p class="muted">Updates are checked automatically whenever Assessor+ opens. When a new version is ready, you will see what has changed before installing it.</p><button id="checkUpdateBtn" class="btn light" type="button">Check for updates</button></div><div class="card"><h3>Time controls</h3><p class="muted">Every time and duration selector moves in 5-minute increments. Learner time banks are calculated from the first arrival in each teaching session.</p></div><div class="card"><h3>App data</h3><p class="muted">Learners, classes and registers are saved in this browser.</p><button class="btn danger" onclick="if(confirm('Clear all app data?')){localStorage.removeItem(KEY);location.reload()}">Clear app data</button></div></div></section>
 </main></div>
 
+<div class="modal-wrap" id="registerExportModal"><div class="modal" style="max-width:560px"><h2>Export selected registers</h2><p class="muted" id="registerExportSummary"></p><div class="export-format-list"><button class="export-format-row" type="button" onclick="exportSelectedLogs('pdf')"><strong>PDF report</strong><span>Readable weekly or selected-register report for managers.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLogs('csv')"><strong>CSV spreadsheet</strong><span>Clear Excel-compatible table with one learner per row.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLogs('zip')"><strong>ZIP pack</strong><span>Contains the PDF, CSV and Assessor+ register pack together.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLogs('apreg')"><strong>Assessor+ pack</strong><span>Send or import the selected registers into another Assessor+ app.</span></button></div><div class="modal-foot"><button class="btn light" type="button" onclick="closeM('registerExportModal')">Cancel</button></div></div></div>
 <div class="modal-wrap" id="learnerModal"><div class="modal"><h2 id="learnerTitle">Add learner</h2><div class="form-grid"><div class="field"><label>First name</label><input id="lf"></div><div class="field"><label>Last name</label><input id="ll"></div><div class="field"><label>Start date</label><input id="ls" type="date"></div><div class="field"><label>End date</label><input id="le" type="date"></div><div class="field"><label>Daily expected hours</label><input id="ldh" type="number" step="0.25" min="0" value="6"><div class="row-meta">Hours expected on each selected attendance day.</div></div><div class="field attendance-days-field"><label>Expected attendance days</label><div class="day-selector" id="attendanceDays">
 <label><input type="checkbox" value="1"> Mon</label><label><input type="checkbox" value="2"> Tue</label><label><input type="checkbox" value="3"> Wed</label><label><input type="checkbox" value="4"> Thu</label><label><input type="checkbox" value="5"> Fri</label><label><input type="checkbox" value="6"> Sat</label><label><input type="checkbox" value="0"> Sun</label>
 </div><div class="row-meta" id="weeklyExpectedSummary"></div></div><div class="field"><label>Past attended-hours adjustment</label><input id="lp" type="number" step="0.25" value="0"></div><div class="field"><label>Opening minute-bank adjustment</label><input id="lb" type="number" step="1" value="0"><div class="row-meta">Use positive or negative minutes for earlier records.</div></div></div><h3 style="margin-top:18px">Holiday mode</h3><p class="muted">Add holidays, half terms, Christmas closures or other periods when expected hours must pause.</p><div id="holidayRows"></div><button class="btn small light" onclick="addHoliday()">+ Add holiday period</button><div class="holiday-summary" id="holidaySummary"></div><div class="modal-foot"><button class="btn light" onclick="closeM('learnerModal')">Cancel</button><button class="btn primary" onclick="saveLearner()">Save learner</button></div></div></div>
@@ -236,7 +238,7 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 <script>
 const KEY='assessorplus_timed_demo_v1';
 const $=id=>document.getElementById(id); const uid=p=>p+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let state=JSON.parse(localStorage.getItem(KEY)||'null')||{learners:[],classes:[],logs:[],live:null,demoTime:null,creditUses:[],assessmentTemplates:[],assessmentRecords:[]};if(!Array.isArray(state.creditUses))state.creditUses=[];if(!Array.isArray(state.assessmentTemplates))state.assessmentTemplates=[];if(!Array.isArray(state.assessmentRecords))state.assessmentRecords=[]; state.learners.forEach(l=>{if(!Array.isArray(l.holidays))l.holidays=[];if(!Number.isFinite(Number(l.bankAdjustment)))l.bankAdjustment=0;if(!Number.isFinite(Number(l.dailyHours)))l.dailyHours=Number(l.weekly)||6;if(!Array.isArray(l.attendanceDays)||!l.attendanceDays.length){let assigned=state.classes.filter(c=>(c.learnerIds||[]).includes(l.id)).map(c=>Number(c.weekday)).filter(Number.isFinite);l.attendanceDays=[...new Set(assigned.length?assigned:[new Date().getDay()])]}}); state.classes.forEach(c=>{if(!Array.isArray(c.holidays))c.holidays=[];if(c.weekday===undefined||c.weekday===null){let names=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];let found=names.findIndex(n=>(c.name||'').toLowerCase().includes(n.toLowerCase()));c.weekday=found>=0?found:new Date().getDay()}}); state.logs.forEach((log,i)=>{if(!log.id)log.id=uid('reglog')+'_'+i;if(log.sentAt===undefined)log.sentAt=null}); if(state.live){if(!state.live.present)state.live.present={};if(!state.live.events)state.live.events={};state.live.learnerIds.forEach(id=>{if(!Array.isArray(state.live.events[id]))state.live.events[id]=[];if(typeof state.live.present[id]!=='boolean')state.live.present[id]=false})} localStorage.setItem(KEY,JSON.stringify(state)); let editingLearner=null,creditLearnerId=null,editingClass=null,tempPeriods=[],tempSessions=[],tempHolidays=[],tempClassHolidays=[],editingLogId=null,currentLogTab='unsent',assessmentView='home',editingTemplateId=null,tempCriteria=[],editingCriterionId=null,editingAssessmentId=null;
+let state=JSON.parse(localStorage.getItem(KEY)||'null')||{learners:[],classes:[],logs:[],live:null,demoTime:null,creditUses:[],assessmentTemplates:[],assessmentRecords:[]};if(!Array.isArray(state.creditUses))state.creditUses=[];if(!Array.isArray(state.assessmentTemplates))state.assessmentTemplates=[];if(!Array.isArray(state.assessmentRecords))state.assessmentRecords=[]; state.learners.forEach(l=>{if(!Array.isArray(l.holidays))l.holidays=[];if(!Number.isFinite(Number(l.bankAdjustment)))l.bankAdjustment=0;if(!Number.isFinite(Number(l.dailyHours)))l.dailyHours=Number(l.weekly)||6;if(!Array.isArray(l.attendanceDays)||!l.attendanceDays.length){let assigned=state.classes.filter(c=>(c.learnerIds||[]).includes(l.id)).map(c=>Number(c.weekday)).filter(Number.isFinite);l.attendanceDays=[...new Set(assigned.length?assigned:[new Date().getDay()])]}}); state.classes.forEach(c=>{if(!Array.isArray(c.holidays))c.holidays=[];if(c.weekday===undefined||c.weekday===null){let names=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];let found=names.findIndex(n=>(c.name||'').toLowerCase().includes(n.toLowerCase()));c.weekday=found>=0?found:new Date().getDay()}}); state.logs.forEach((log,i)=>{if(!log.id)log.id=uid('reglog')+'_'+i;if(log.sentAt===undefined)log.sentAt=null}); if(state.live){if(!state.live.present)state.live.present={};if(!state.live.events)state.live.events={};state.live.learnerIds.forEach(id=>{if(!Array.isArray(state.live.events[id]))state.live.events[id]=[];if(typeof state.live.present[id]!=='boolean')state.live.present[id]=false})} localStorage.setItem(KEY,JSON.stringify(state)); let editingLearner=null,creditLearnerId=null,editingClass=null,tempPeriods=[],tempSessions=[],tempHolidays=[],tempClassHolidays=[],editingLogId=null,currentLogTab='unsent',selectedLogIds=new Set(),assessmentView='home',editingTemplateId=null,tempCriteria=[],editingCriterionId=null,editingAssessmentId=null;
 function save(){localStorage.setItem(KEY,JSON.stringify(state));renderAll()}
 function openM(id){$(id).classList.add('open')} function closeM(id){$(id).classList.remove('open')}
 function dateISO(d=new Date()){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
@@ -414,88 +416,68 @@ function deleteRegisterById(id){
 }
 function setLogTab(tab){
   currentLogTab=tab==='all'?'all':'unsent';
+  selectedLogIds.clear();
   renderLogs();
 }
+function visibleLogs(){const unsent=state.logs.filter(log=>!log.sentAt);return currentLogTab==='all'?state.logs:unsent}
+function selectedLogs(){return state.logs.filter(log=>selectedLogIds.has(String(log.id)))}
+function updateLogSelectionUi(){
+ const count=selectedLogIds.size;
+ if($('selectedLogSummary'))$('selectedLogSummary').textContent=`${count} register${count===1?'':'s'} selected`;
+ if($('exportSelectedBtn'))$('exportSelectedBtn').disabled=!count;
+ document.querySelectorAll('[data-log-select]').forEach(cb=>cb.checked=selectedLogIds.has(String(cb.dataset.logSelect)));
+}
+function toggleLogSelection(id,checked){id=String(id);if(checked)selectedLogIds.add(id);else selectedLogIds.delete(id);updateLogSelectionUi()}
+function selectVisibleLogs(){const logs=visibleLogs();const allSelected=logs.length&&logs.every(log=>selectedLogIds.has(String(log.id)));logs.forEach(log=>allSelected?selectedLogIds.delete(String(log.id)):selectedLogIds.add(String(log.id)));updateLogSelectionUi()}
 function registerPackPayload(logs){
   return {
-    format:'AssessorPlus Register Pack',
-    version:1,
-    exportedAt:new Date().toISOString(),
-    registerCount:logs.length,
-    registers:logs.map(log=>({
-      id:log.id,
-      classId:log.classId||null,
-      className:log.className,
-      date:log.date,
-      periods:log.periods,
-      plannedMinutes:log.plannedMinutes,
-      completedAt:log.completedAt,
-      autoCompleted:!!log.autoCompleted,
-      editedAt:log.editedAt||null,
-      learners:(log.results||[]).map(r=>({
-        learnerId:r.learnerId,
-        learnerName:learnerName(r.learnerId),
-        holiday:!!r.holiday,
-        creditedMinutes:r.creditedMinutes,
-        netMinutes:r.netMinutes,
-        attendedSessions:r.attendedSessions,
-        totalSessions:r.totalSessions,
-        details:r.details||[]
-      }))
-    })),
+    format:'AssessorPlus Register Pack',version:2,exportedAt:new Date().toISOString(),registerCount:logs.length,
+    registers:logs.map(log=>({id:log.id,classId:log.classId||null,className:log.className,date:log.date,periods:log.periods,plannedMinutes:log.plannedMinutes,completedAt:log.completedAt,autoCompleted:!!log.autoCompleted,editedAt:log.editedAt||null,learners:(log.results||[]).map(r=>({learnerId:r.learnerId,learnerName:learnerName(r.learnerId),holiday:!!r.holiday,creditedMinutes:r.creditedMinutes,netMinutes:r.netMinutes,attendedSessions:r.attendedSessions,totalSessions:r.totalSessions,details:r.details||[]}))})),
     attendanceCredits:state.creditUses.filter(x=>logs.some(log=>(log.results||[]).some(r=>r.learnerId===x.learnerId)))
   };
 }
 function safePackDate(d){return String(d||'').replace(/[^0-9-]/g,'')}
 function csvCell(value){let s=String(value??'');return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
-function registerLogsCsv(logs){let rows=[['Register date','Register','Learner','Holiday','Planned minutes','Attended minutes','Attendance percent','Late sessions','Late minutes','Absent sessions','Missed minutes','Minute bank change','Attendance credits used','Available minute bank','Completion type','Sent date']];for(let log of logs){for(let r of (log.results||[])){let m=resultSessionMetrics(log,r);rows.push([log.date,log.className,learnerName(r.learnerId),r.holiday?'Yes':'No',log.plannedMinutes||0,r.creditedMinutes||0,r.holiday?'':String(logAttendancePercent(log,r)).replace('%',''),m.lateSessions,m.lateMinutes,m.absentSessions,m.absentMinutes,resultArrivalBankMinutes(log,r),creditsUsedMinutes(r.learnerId),learnerBankMinutes(r.learnerId,false),log.autoCompleted?'Automatic':'Manual',log.sentAt?new Date(log.sentAt).toLocaleDateString('en-GB'):''])}}return '\uFEFF'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n')}
-function markLogsSent(logs){let sentAt=new Date().toISOString();logs.forEach(log=>log.sentAt=sentAt);localStorage.setItem(KEY,JSON.stringify(state));currentLogTab='all';renderLogs();renderAll()}
-function exportUnsentCsv(){let logs=state.logs.filter(log=>!log.sentAt);if(!logs.length){alert('There are no unsent register logs.');return}let dates=logs.map(x=>x.date).filter(Boolean).sort(),first=safePackDate(dates[0]||dateISO()),last=safePackDate(dates[dates.length-1]||first);let blob=new Blob([registerLogsCsv(logs)],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`AssessorPlus-Registers-${first}-to-${last}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);markLogsSent(logs)}
-async function exportUnsentRegisterPack(){
-  const logs=state.logs.filter(log=>!log.sentAt);
-  if(!logs.length){alert('There are no unsent register logs.');return;}
-  const dates=logs.map(x=>x.date).filter(Boolean).sort();
-  const first=safePackDate(dates[0]||new Date().toISOString().slice(0,10));
-  const last=safePackDate(dates[dates.length-1]||first);
-  const filename=`AssessorPlus-Registers-${first}-to-${last}.apreg`;
-  const blob=new Blob([JSON.stringify(registerPackPayload(logs),null,2)],{type:'application/json'});
-  let shared=false;
-  try{
-    const file=new File([blob],filename,{type:'application/json'});
-    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-      await navigator.share({title:'Assessor+ Register Pack',text:`${logs.length} completed register${logs.length===1?'':'s'}`,files:[file]});
-      shared=true;
-    }
-  }catch(err){
-    if(err&&err.name==='AbortError')return;
-  }
-  if(!shared){
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
-  }
-  markLogsSent(logs);
+function registerLogsCsv(logs){
+ let rows=[['Date','Register','Learner','Status','Expected time','Attended time','Attendance','Late sessions','Total lateness','Absent sessions','Missed time','Minute bank change','Credits used','Available bank','Completed','Previously sent']];
+ for(let log of logs){for(let r of (log.results||[])){let m=resultSessionMetrics(log,r);rows.push([dateFmt(log.date),log.className,learnerName(r.learnerId),r.holiday?'On holiday':'Recorded',minText(log.plannedMinutes||0),r.holiday?'—':minText(r.creditedMinutes||0),r.holiday?'—':logAttendancePercent(log,r),r.holiday?'—':m.lateSessions,r.holiday?'—':minText(m.lateMinutes),r.holiday?'—':m.absentSessions,r.holiday?'—':minText(m.absentMinutes),r.holiday?'—':bankText(resultArrivalBankMinutes(log,r)),minText(creditsUsedMinutes(r.learnerId)),bankText(learnerBankMinutes(r.learnerId,false)),log.autoCompleted?'Automatic':'Manual',log.sentAt?new Date(log.sentAt).toLocaleDateString('en-GB'):'No'])}}
+ return '\uFEFF'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n')
+}
+function registerLogsPdf(logs){
+ let sections=[{text:`Generated: ${new Date().toLocaleString('en-GB')}`,size:9},{text:`Registers included: ${logs.length}`,size:10},{gap:8}];
+ for(let log of logs){sections.push({text:`${dateFmt(log.date)} - ${log.className}`,size:13,bold:true},{text:`Planned teaching: ${minText(log.plannedMinutes||0)} | ${log.autoCompleted?'Automatically':'Manually'} completed`});for(let r of (log.results||[])){let m=resultSessionMetrics(log,r);sections.push({text:`${learnerName(r.learnerId)}: ${r.holiday?'On holiday':`${minText(r.creditedMinutes||0)} attended, ${logAttendancePercent(log,r)}, ${m.lateSessions} late session(s), ${minText(m.lateMinutes)} late, ${m.absentSessions} absent session(s)`}`})}sections.push({gap:8})}
+ return buildTextPdf('Assessor+ Register Report',sections)
+}
+function downloadBlob(blob,filename){let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function exportBaseName(logs){let dates=logs.map(x=>x.date).filter(Boolean).sort(),first=safePackDate(dates[0]||dateISO()),last=safePackDate(dates[dates.length-1]||first);return `AssessorPlus-Registers-${first}-to-${last}`}
+function markLogsSent(logs){let sentAt=new Date().toISOString();logs.forEach(log=>{log.sentAt=sentAt;log.sendCount=(Number(log.sendCount)||0)+1});localStorage.setItem(KEY,JSON.stringify(state));selectedLogIds.clear();renderLogs();renderAll()}
+function openRegisterExport(){let logs=selectedLogs();if(!logs.length){alert('Select at least one register.');return}$('registerExportSummary').textContent=`${logs.length} completed register${logs.length===1?'':'s'} selected. Choose the format to download or share.`;openM('registerExportModal')}
+function crc32(bytes){let table=crc32.table||(crc32.table=Array.from({length:256},(_,n)=>{let c=n;for(let k=0;k<8;k++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;return c>>>0}));let c=0xffffffff;for(let b of bytes)c=table[(c^b)&255]^(c>>>8);return (c^0xffffffff)>>>0}
+function u16(n){return [n&255,(n>>>8)&255]} function u32(n){return [n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255]}
+async function makeZip(files){let enc=new TextEncoder(),parts=[],central=[],offset=0;for(let f of files){let name=enc.encode(f.name),data=f.data instanceof Uint8Array?f.data:new Uint8Array(await f.data.arrayBuffer()),crc=crc32(data),local=new Uint8Array([...u32(0x04034b50),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(data.length),...u32(data.length),...u16(name.length),...u16(0),...name]);parts.push(local,data);central.push(new Uint8Array([...u32(0x02014b50),...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(data.length),...u32(data.length),...u16(name.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(offset),...name]));offset+=local.length+data.length}let centralSize=central.reduce((n,x)=>n+x.length,0),end=new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(centralSize),...u32(offset),...u16(0)]);return new Blob([...parts,...central,end],{type:'application/zip'})}
+async function exportSelectedLogs(format){
+ const logs=selectedLogs();if(!logs.length)return;const base=exportBaseName(logs);closeM('registerExportModal');
+ if(format==='csv')downloadBlob(new Blob([registerLogsCsv(logs)],{type:'text/csv;charset=utf-8'}),base+'.csv');
+ if(format==='pdf')downloadBlob(registerLogsPdf(logs),base+'.pdf');
+ if(format==='apreg'){
+   const blob=new Blob([JSON.stringify(registerPackPayload(logs),null,2)],{type:'application/json'}),filename=base+'.apreg';let shared=false;
+   try{const file=new File([blob],filename,{type:'application/json'});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:'Assessor+ Register Pack',text:`${logs.length} completed register${logs.length===1?'':'s'}`,files:[file]});shared=true}}catch(err){if(err&&err.name==='AbortError')return}
+   if(!shared)downloadBlob(blob,filename)
+ }
+ if(format==='zip'){
+   const pdf=registerLogsPdf(logs),csv=new Blob([registerLogsCsv(logs)],{type:'text/csv;charset=utf-8'}),apreg=new Blob([JSON.stringify(registerPackPayload(logs),null,2)],{type:'application/json'});
+   const zip=await makeZip([{name:base+'.pdf',data:pdf},{name:base+'.csv',data:csv},{name:base+'.apreg',data:apreg}]);downloadBlob(zip,base+'.zip')
+ }
+ markLogsSent(logs)
 }
 function renderLogs(){
-  const el=$('logList');
-  const unsent=state.logs.filter(log=>!log.sentAt);
-  const visible=currentLogTab==='all'?state.logs:unsent;
-  $('unsentLogTab')?.classList.toggle('active',currentLogTab==='unsent');
-  $('allLogTab')?.classList.toggle('active',currentLogTab==='all');
+  const el=$('logList'),unsent=state.logs.filter(log=>!log.sentAt),visible=currentLogTab==='all'?state.logs:unsent;
+  for(const id of [...selectedLogIds])if(!state.logs.some(log=>String(log.id)===id))selectedLogIds.delete(id);
+  $('unsentLogTab')?.classList.toggle('active',currentLogTab==='unsent');$('allLogTab')?.classList.toggle('active',currentLogTab==='all');
   if($('logTabSummary'))$('logTabSummary').textContent=currentLogTab==='unsent'?`${unsent.length} unsent completed register${unsent.length===1?'':'s'}`:`${state.logs.length} completed register${state.logs.length===1?'':'s'}`;
-  if($('exportUnsentBtn'))$('exportUnsentBtn').style.display=unsent.length?'inline-flex':'none';if($('exportCsvBtn'))$('exportCsvBtn').style.display=unsent.length?'inline-flex':'none';
+  updateLogSelectionUi();
   if(!visible.length){el.innerHTML=`<div class="empty">${currentLogTab==='unsent'?'No unsent register logs.':'No completed register logs yet.'}</div>`;return;}
-  el.innerHTML=visible.map((log,index)=>`<div class="card register-log-card">
-    <div class="row" style="border:0;padding:0">
-      <div><div class="row-title">${esc(log.className)}</div><div class="row-meta">${dateFmt(log.date)} · ${minText(log.plannedMinutes)} planned learning · ${log.autoCompleted?'Automatically completed':'Manually completed'}</div><div class="${log.sentAt?'sent-status':'unsent-status'}">${log.sentAt?`Sent ${new Date(log.sentAt).toLocaleDateString('en-GB')}`:'Unsent'}</div></div>
-      <div class="log-head-actions">
-        <button type="button" class="btn small dark" onclick="toggleLog('${esc(log.id)}')">View</button>
-        <button type="button" class="btn small light" onclick="openEditLog('${esc(log.id)}')">Edit learners</button>
-        <button type="button" class="btn small danger" onclick="deleteRegisterById(decodeURIComponent('${encodeURIComponent(log.id)}'))">Delete</button>
-      </div>
-    </div>
-    <div id="log_${esc(log.id)}" style="display:none;margin-top:12px"><table><thead><tr><th>Learner</th><th>Attended</th><th>Attendance</th><th>Bank change</th><th>Sessions</th></tr></thead><tbody>${(log.results||[]).map(r=>`<tr><td>${esc(learnerName(r.learnerId))}</td><td>${r.holiday?'On holiday':minText(r.creditedMinutes)}</td><td>${logAttendancePercent(log,r)}</td><td class="${resultArrivalBankMinutes(log,r)>=0?'positive':'negative'}">${r.holiday?'—':bankText(resultArrivalBankMinutes(log,r))}</td><td>${r.holiday?'—':`${r.attendedSessions}/${r.totalSessions}`}</td></tr>`).join('')}</tbody></table></div>
-  </div>`).join('');
+  el.innerHTML=visible.map(log=>`<div class="card register-log-card"><div class="row" style="border:0;padding:0"><label class="log-select"><input type="checkbox" data-log-select="${esc(log.id)}" onchange="toggleLogSelection('${esc(log.id)}',this.checked)"><span><span class="row-title">${esc(log.className)}</span><span class="row-meta">${dateFmt(log.date)} · ${minText(log.plannedMinutes)} planned · ${(log.results||[]).length} learners</span><span class="${log.sentAt?'sent-status':'unsent-status'}">${log.sentAt?`Sent ${new Date(log.sentAt).toLocaleDateString('en-GB')}${log.sendCount>1?` · sent ${log.sendCount} times`:''}`:'Unsent'}</span></span></label><div class="log-head-actions"><button type="button" class="btn small dark" onclick="toggleLog('${esc(log.id)}')">View</button><button type="button" class="btn small light" onclick="openEditLog('${esc(log.id)}')">Edit learners</button><button type="button" class="btn small danger" onclick="deleteRegisterById(decodeURIComponent('${encodeURIComponent(log.id)}'))">Delete</button></div></div><div id="log_${esc(log.id)}" style="display:none;margin-top:12px"><table><thead><tr><th>Learner</th><th>Attended</th><th>Attendance</th><th>Bank change</th><th>Sessions</th></tr></thead><tbody>${(log.results||[]).map(r=>`<tr><td>${esc(learnerName(r.learnerId))}</td><td>${r.holiday?'On holiday':minText(r.creditedMinutes)}</td><td>${logAttendancePercent(log,r)}</td><td class="${resultArrivalBankMinutes(log,r)>=0?'positive':'negative'}">${r.holiday?'—':bankText(resultArrivalBankMinutes(log,r))}</td><td>${r.holiday?'—':`${r.attendedSessions}/${r.totalSessions}`}</td></tr>`).join('')}</tbody></table></div></div>`).join('');updateLogSelectionUi()
 }
 function toggleLog(id){let el=$('log_'+id);el.style.display=el.style.display==='none'?'block':'none'}
 function openEditLog(id){let log=state.logs.find(x=>x.id===id);if(!log)return;editingLogId=id;let sessions=log.periods.filter(p=>p.type==='session');$('editLogContent').innerHTML=`<div class="edit-note">Select a learner to reveal their correction options. Add or amend missed arrival and leaving times, then save to recalculate all attendance totals.</div><div class="card" style="margin-bottom:12px"><strong>${esc(log.className)}</strong><div class="row-meta">${dateFmt(log.date)} · ${minText(log.plannedMinutes)} planned learning</div></div>${log.results.map((r,ri)=>`<details class="card" style="margin-bottom:10px"><summary style="cursor:pointer;font-weight:800;display:flex;justify-content:space-between;gap:12px;align-items:center"><span>${esc(learnerName(r.learnerId))}</span><span class="row-meta">${r.holiday?'On holiday':`${minText(r.creditedMinutes)} · ${logAttendancePercent(log,r)}`}</span></summary><div style="margin-top:12px">${r.holiday?'<div class="holiday-badge">On holiday for this register date</div>':sessions.map((p,si)=>{let d=(r.details||[]).find(x=>x.periodId===p.id)||{};let segs=d.segments||[];let first=segs.length?Math.min(...segs.map(x=>Number(x.inMinute))):null;let outs=segs.map(x=>x.outMinute).filter(x=>x!=null).map(Number);let last=outs.length?Math.max(...outs):null;let fmt=m=>m==null?'':`${String(Math.floor(m/60)).padStart(2,'0')}:${String(Math.round(m%60)).padStart(2,'0')}`;return `<div class="edit-session"><div class="session-label"><strong>${esc(p.label)}</strong><div class="row-meta">Scheduled ${p.start}–${p.end}</div></div><div class="field"><label>Attendance</label><select id="el_status_${ri}_${si}"><option value="absent" ${first==null?'selected':''}>Absent</option><option value="present" ${first!=null?'selected':''}>Present</option></select></div><div class="field"><label>Arrived</label><input id="el_in_${ri}_${si}" type="time" value="${fmt(first)}"></div><div class="field"><label>Left</label><input id="el_out_${ri}_${si}" type="time" value="${fmt(last)}"></div></div>`}).join('')}</div></details>`).join('')}`;openM('editLogModal')}
@@ -749,11 +731,11 @@ setInterval(()=>{$('topClock').textContent=nowTime();processClock()},1000);$('to
 
 <script>
 (() => {
-  const APP_VERSION = '2.9';
+  const APP_VERSION = '3.0';
   const RELEASE_NOTES = [
-    'Added reusable assessment templates.',
-    'Added flexible number, rating, competency and pass/fail criteria.',
-    'Added compact learner assessment records with editable overall results.'
+    'Added selection and resending for completed register logs.',
+    'Added PDF, CSV, ZIP and Assessor+ register-pack export options.',
+    'Improved CSV headings and formatting for Excel and managers.'
   ];
   let registration = null;
   let waitingWorker = null;
