@@ -289,7 +289,7 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 <div class="modal-wrap" id="assessmentRecordModal"><div class="modal" style="max-width:760px"><h2 id="assessmentRecordTitle">Create assessment record</h2><div class="form-grid"><div class="field"><label>Assessment template</label><select id="recordTemplate" onchange="renderRecordCriteria()"></select></div><div class="field"><label>Learner</label><select id="recordLearner"></select></div><div class="field"><label>Assessment date</label><input id="recordDate" type="date"></div><div class="field"><label>Overall result</label><input id="recordOverall" placeholder="Automatically suggested; can be changed"></div></div><div id="recordCriteria" class="assessment-fields" style="margin-top:14px"></div><div class="field" style="margin-top:12px"><label>Notes (optional)</label><input id="recordNotes"></div><div class="modal-foot"><button class="btn light" type="button" onclick="closeM('assessmentRecordModal')">Cancel</button><button class="btn primary" type="button" onclick="saveAssessmentRecord()">Save assessment</button></div></div></div>
 
 <div class="modal-wrap" id="reviewImportModal"><div class="modal" style="max-width:600px"><div class="receive-review-intro"><h2>Receive learner review</h2><p>Choose how the learner is sharing their Apprentice+ progress.</p></div><div class="receive-choice-list"><button class="receive-choice" type="button" onclick="startReviewQrScan()"><span class="receive-choice-mark">QR</span><span><strong>Scan QR code</strong><span>Best for a face-to-face review.</span></span><span class="receive-choice-arrow">›</span></button><label class="receive-choice file-button"><span class="receive-choice-mark">FILE</span><span><strong>Open review file</strong><span>Use an .apreview file for a remote review.</span></span><span class="receive-choice-arrow">›</span><input id="reviewImportFile" type="file" accept=".apreview,.json,application/json"></label></div><details style="margin-top:12px"><summary class="muted" style="cursor:pointer;font-size:12px">Use transfer text instead</summary><div class="field" style="margin-top:10px"><textarea id="reviewImportText" rows="4" placeholder="Paste review transfer text"></textarea></div><div class="review-inline-actions" style="justify-content:flex-end"><button class="btn primary" type="button" onclick="parseReviewImportText()">Check data</button></div></details><div id="reviewImportPreview"></div><div class="modal-foot"><button class="btn light" type="button" onclick="stopReviewQrScan();closeM('reviewImportModal')">Close</button></div></div></div>
-<div class="modal-wrap" id="reviewScanModal"><div class="modal" style="max-width:540px"><div class="receive-review-intro"><h2>Scan Apprentice+ review</h2><p>Hold the learner's QR code inside the frame.</p></div><div class="scan-panel"><div class="scan-frame"><video id="reviewScanVideo" playsinline></video><div class="scan-corners" aria-hidden="true"></div></div><div id="reviewScanStatus" class="scan-status">Starting camera…</div></div><div class="modal-foot"><button class="btn light" type="button" onclick="stopReviewQrScan();closeM('reviewScanModal')">Cancel</button></div></div></div>
+<div class="modal-wrap" id="reviewScanModal"><div class="modal" style="max-width:540px"><div class="receive-review-intro"><h2>Scan Apprentice+ review</h2><p>Hold the learner's QR code inside the frame.</p></div><div class="scan-panel"><div class="scan-frame"><video id="reviewScanVideo" playsinline muted></video><div class="scan-corners" aria-hidden="true"></div></div><div id="reviewScanStatus" class="scan-status" aria-live="polite">Starting camera…</div><div class="review-inline-actions" style="justify-content:center;margin-top:10px"><button id="reviewScanRetry" class="btn primary" type="button">Start camera</button><label id="reviewScanImageLabel" class="btn light file-button" style="display:none">Scan saved QR<input id="reviewScanImage" type="file" accept="image/*" capture="environment"></label></div></div><div class="modal-foot"><button class="btn light" type="button" onclick="stopReviewQrScan();closeM('reviewScanModal')">Cancel</button></div></div></div>
 <div class="modal-wrap" id="reviewAttachModal"><div class="modal" style="max-width:680px"><h2>Attach review data</h2><div id="reviewAttachPreview" class="snapshot-preview"></div><div class="field" style="margin-top:12px"><label>Select the correct learner</label><select id="reviewAttachLearner"></select></div><div class="modal-foot"><button class="btn light" type="button" onclick="closeM('reviewAttachModal')">Cancel</button><button class="btn primary" type="button" onclick="attachSnapshotToLearner()">Attach and start review</button></div></div></div>
 <div class="modal-wrap" id="reviewEditorModal"><div class="modal" style="max-width:900px"><h2 id="reviewEditorTitle">Professional review</h2><div id="reviewEditorBody"></div><div class="modal-foot"><button class="btn light" type="button" onclick="closeM('reviewEditorModal')">Cancel</button><button class="btn primary" type="button" onclick="saveProfessionalReview()">Save review</button></div></div></div>
 <div class="modal-wrap" id="reviewShareModal"><div class="modal" style="max-width:600px"><h2>Send review to Apprentice+</h2><p class="muted">Use the QR code face-to-face, or download the file for email, Teams or a distance review.</p><div id="reviewShareQr" class="qr-box"></div><div class="review-inline-actions" style="margin-top:12px;justify-content:center"><button class="btn primary" type="button" onclick="downloadCurrentReviewPack()">Download .apreview</button><button class="btn light" type="button" onclick="downloadCurrentReviewPdf()">Download PDF</button></div><div class="modal-foot"><button class="btn light" type="button" onclick="closeM('reviewShareModal')">Close</button></div></div></div>
@@ -958,23 +958,80 @@ function downloadCurrentReviewPack(){const r=state.reviews.find(x=>x.id===curren
 function safeFile(s){return String(s||'Review').replace(/[^a-z0-9_-]+/gi,'_').replace(/^_+|_+$/g,'')}
 function downloadBlob(name,data,type){const blob=data instanceof Blob?data:new Blob([data],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function downloadCurrentReviewPdf(){const r=state.reviews.find(x=>x.id===currentSharedReviewId);if(r)printReview(r)}
-function printReview(r){const l=reviewLearner(r.learnerId),a=attendanceStats(r.learnerId),m=learnerSessionMetrics(r.learnerId);const w=window.open('','_blank');if(!w)return alert('Allow pop-ups to create the PDF.');w.document.write(`<!doctype html><html><head><title>${esc(r.learnerName)} Review</title><style>body{font-family:Arial,sans-serif;color:#222;margin:32px;font-size:12px}h1{font-size:22px;margin:0 0 4px;color:#5b21b6}h2{font-size:14px;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:20px}.meta{color:#666}.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;margin:16px 0}.stat{padding:10px;border-right:1px solid #ccc}.stat:last-child{border:0}.stat b{display:block;font-size:16px}.box{border:1px solid #ccc;padding:10px;white-space:pre-wrap}.targets{padding-left:20px}.targets li{margin:7px 0}.foot{margin-top:24px;color:#666;font-size:10px}@media print{button{display:none}}</style></head><body><h1>Professional Apprenticeship Review</h1><div class="meta">${esc(r.learnerName)} · ${dateFmt(r.reviewDate)} · Next review ${dateFmt(r.nextReviewDate)}</div><div class="stats"><div class="stat">Attendance<b>${Math.min(100,a.percent)}%</b></div><div class="stat">Expected<b>${minText(a.expected)}</b></div><div class="stat">Attended<b>${minText(a.actual)}</b></div><div class="stat">RAG<b>${esc(r.rag)}</b></div></div><h2>Tutor summary</h2><div class="box">${esc(r.tutorSummary)}</div><h2>Learner comments</h2><div class="box">${esc(r.learnerComments||'No comments recorded.')}</div><h2>Employer comments</h2><div class="box">${esc(r.employerComments||'No comments recorded.')}</div><h2>Attendance detail</h2><div class="box">Late sessions: ${m.lateSessions}\nLateness: ${minText(m.lateMinutes)}\nAbsent sessions: ${m.absentSessions}\nMissed time: ${minText(m.absentMinutes)}</div><h2>Agreed action plan</h2><ol class="targets">${r.targets.map(t=>`<li>${esc(t.text)}${t.dueDate?` — due ${dateFmt(t.dueDate)}`:''}</li>`).join('')}</ol><h2>Barriers and support</h2><div class="box">${esc(r.barriers||'No barriers recorded.')}</div><h2>Agreement</h2><div class="box">Employer involved: ${r.employerInvolved==='yes'?'Yes':'No'}\n${esc(r.agreement||'')}</div><h2>Signatures</h2><div class="stats"><div class="stat">Learner<b>${r.signatures?.learner?'Signed':'Not signed'}</b>${r.signatures?.learner?`<img src="${r.signatures.learner}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Employer / representative<b>${r.signatures?.employer?'Signed':'Not signed'}</b>${r.signatures?.employer?`<img src="${r.signatures.employer}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Vocational Coach<b>${r.signatures?.coach?'Signed':'Not signed'}</b>${r.signatures?.coach?`<img src="${r.signatures.coach}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div></div><div class="foot">Generated by Assessor+ V3.7</div><script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`);w.document.close()}
+function printReview(r){const l=reviewLearner(r.learnerId),a=attendanceStats(r.learnerId),m=learnerSessionMetrics(r.learnerId);const w=window.open('','_blank');if(!w)return alert('Allow pop-ups to create the PDF.');w.document.write(`<!doctype html><html><head><title>${esc(r.learnerName)} Review</title><style>body{font-family:Arial,sans-serif;color:#222;margin:32px;font-size:12px}h1{font-size:22px;margin:0 0 4px;color:#5b21b6}h2{font-size:14px;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:20px}.meta{color:#666}.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;margin:16px 0}.stat{padding:10px;border-right:1px solid #ccc}.stat:last-child{border:0}.stat b{display:block;font-size:16px}.box{border:1px solid #ccc;padding:10px;white-space:pre-wrap}.targets{padding-left:20px}.targets li{margin:7px 0}.foot{margin-top:24px;color:#666;font-size:10px}@media print{button{display:none}}</style></head><body><h1>Professional Apprenticeship Review</h1><div class="meta">${esc(r.learnerName)} · ${dateFmt(r.reviewDate)} · Next review ${dateFmt(r.nextReviewDate)}</div><div class="stats"><div class="stat">Attendance<b>${Math.min(100,a.percent)}%</b></div><div class="stat">Expected<b>${minText(a.expected)}</b></div><div class="stat">Attended<b>${minText(a.actual)}</b></div><div class="stat">RAG<b>${esc(r.rag)}</b></div></div><h2>Tutor summary</h2><div class="box">${esc(r.tutorSummary)}</div><h2>Learner comments</h2><div class="box">${esc(r.learnerComments||'No comments recorded.')}</div><h2>Employer comments</h2><div class="box">${esc(r.employerComments||'No comments recorded.')}</div><h2>Attendance detail</h2><div class="box">Late sessions: ${m.lateSessions}\nLateness: ${minText(m.lateMinutes)}\nAbsent sessions: ${m.absentSessions}\nMissed time: ${minText(m.absentMinutes)}</div><h2>Agreed action plan</h2><ol class="targets">${r.targets.map(t=>`<li>${esc(t.text)}${t.dueDate?` — due ${dateFmt(t.dueDate)}`:''}</li>`).join('')}</ol><h2>Barriers and support</h2><div class="box">${esc(r.barriers||'No barriers recorded.')}</div><h2>Agreement</h2><div class="box">Employer involved: ${r.employerInvolved==='yes'?'Yes':'No'}\n${esc(r.agreement||'')}</div><h2>Signatures</h2><div class="stats"><div class="stat">Learner<b>${r.signatures?.learner?'Signed':'Not signed'}</b>${r.signatures?.learner?`<img src="${r.signatures.learner}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Employer / representative<b>${r.signatures?.employer?'Signed':'Not signed'}</b>${r.signatures?.employer?`<img src="${r.signatures.employer}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Vocational Coach<b>${r.signatures?.coach?'Signed':'Not signed'}</b>${r.signatures?.coach?`<img src="${r.signatures.coach}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div></div><div class="foot">Generated by Assessor+ V3.8</div><script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`);w.document.close()}
 function handleReviewFile(file){const reader=new FileReader();reader.onload=()=>{try{$('reviewImportText').value=String(reader.result||'');parseReviewImportText()}catch(e){alert('Could not read the selected file.')}};reader.readAsText(file)}
-async function startReviewQrScan(){
- stopReviewQrScan();closeM('reviewImportModal');openM('reviewScanModal');const status=$('reviewScanStatus');
- if(!('BarcodeDetector' in window)){status.textContent='QR camera scanning is not supported in this browser. Use the .apreview file or paste the transfer text.';return}
- try{reviewScanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});const video=$('reviewScanVideo');video.srcObject=reviewScanStream;await video.play();const detector=new BarcodeDetector({formats:['qr_code']});status.textContent='Scanning…';reviewScanTimer=setInterval(async()=>{try{const codes=await detector.detect(video);if(codes[0]?.rawValue){stopReviewQrScan();closeM('reviewScanModal');openM('reviewImportModal');$('reviewImportText').value=codes[0].rawValue;parseReviewImportText()}}catch{}},500)}catch(e){status.textContent='Camera access was unavailable. Use the .apreview file or paste the transfer text.'}
+let reviewQrDetector=null;
+let reviewScanBusy=false;
+async function ensureReviewQrDetector(){
+ if(!('BarcodeDetector' in window))throw new Error('This browser does not include QR scanning support.');
+ if(typeof BarcodeDetector.getSupportedFormats==='function'){
+  const formats=await BarcodeDetector.getSupportedFormats();
+  if(!formats.includes('qr_code'))throw new Error('QR scanning is not supported by this browser.');
+ }
+ if(!reviewQrDetector)reviewQrDetector=new BarcodeDetector({formats:['qr_code']});
+ return reviewQrDetector;
 }
-function stopReviewQrScan(){if(reviewScanTimer){clearInterval(reviewScanTimer);reviewScanTimer=null}if(reviewScanStream){reviewScanStream.getTracks().forEach(t=>t.stop());reviewScanStream=null}const v=$('reviewScanVideo');if(v)v.srcObject=null}
+function receiveScannedReviewText(text){
+ if(!text)return;
+ stopReviewQrScan();closeM('reviewScanModal');openM('reviewImportModal');
+ $('reviewImportText').value=text;parseReviewImportText();
+}
+async function beginReviewQrCamera(){
+ const status=$('reviewScanStatus'),retry=$('reviewScanRetry'),imageLabel=$('reviewScanImageLabel');
+ stopReviewQrScan();
+ retry.disabled=true;retry.textContent='Starting…';status.textContent='Requesting camera access…';
+ if(!window.isSecureContext){status.textContent='Camera scanning requires the secure HTTPS version of Assessor+.';retry.disabled=false;retry.textContent='Try again';return}
+ if(!navigator.mediaDevices?.getUserMedia){status.textContent='This browser cannot open the camera. Use the review file instead.';retry.disabled=false;retry.textContent='Try again';return}
+ try{
+  const detector=await ensureReviewQrDetector();
+  const attempts=[
+   {video:{facingMode:{exact:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false},
+   {video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false},
+   {video:true,audio:false}
+  ];
+  let lastError=null;
+  for(const constraints of attempts){try{reviewScanStream=await navigator.mediaDevices.getUserMedia(constraints);break}catch(e){lastError=e}}
+  if(!reviewScanStream)throw lastError||new Error('Camera unavailable');
+  const video=$('reviewScanVideo');video.srcObject=reviewScanStream;await video.play();
+  status.textContent='Scanning… keep the QR code steady inside the frame.';retry.textContent='Restart camera';retry.disabled=false;imageLabel.style.display='inline-flex';
+  reviewScanTimer=setInterval(async()=>{
+   if(reviewScanBusy||!reviewScanStream||video.readyState<2)return;
+   reviewScanBusy=true;
+   try{const codes=await detector.detect(video);const value=codes?.find(c=>c.rawValue)?.rawValue;if(value)receiveScannedReviewText(value)}catch(e){}finally{reviewScanBusy=false}
+  },300);
+ }catch(e){
+  const name=String(e?.name||'');
+  status.textContent=name==='NotAllowedError'?'Camera permission was blocked. Allow camera access in the browser, then press Start camera.':(e?.message||'The camera could not be started. Use the review file instead.');
+  retry.disabled=false;retry.textContent='Start camera';imageLabel.style.display=('BarcodeDetector' in window)?'inline-flex':'none';
+ }
+}
+async function startReviewQrScan(){
+ stopReviewQrScan();closeM('reviewImportModal');openM('reviewScanModal');
+ $('reviewScanStatus').textContent='Starting camera…';
+ setTimeout(beginReviewQrCamera,80);
+}
+function stopReviewQrScan(){
+ if(reviewScanTimer){clearInterval(reviewScanTimer);reviewScanTimer=null}
+ reviewScanBusy=false;
+ if(reviewScanStream){reviewScanStream.getTracks().forEach(t=>t.stop());reviewScanStream=null}
+ const v=$('reviewScanVideo');if(v){v.pause?.();v.srcObject=null}
+}
+async function scanReviewQrImage(file){
+ const status=$('reviewScanStatus');if(!file)return;
+ try{const detector=await ensureReviewQrDetector();status.textContent='Reading QR image…';const bitmap=await createImageBitmap(file);const codes=await detector.detect(bitmap);bitmap.close?.();const value=codes?.find(c=>c.rawValue)?.rawValue;if(!value)throw new Error('No QR code was found in that image.');receiveScannedReviewText(value)}catch(e){status.textContent=e?.message||'The QR image could not be read.'}
+}
+$('reviewScanRetry')?.addEventListener('click',beginReviewQrCamera);
+$('reviewScanImage')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(f)scanReviewQrImage(f);e.target.value=''});
 $('reviewImportFile')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(f)handleReviewFile(f)});
 
 (() => {
-  const APP_VERSION = '3.6';
+  const APP_VERSION = '3.8';
   const RELEASE_NOTES = [
     'Replaced Assessments with professional Reviews.',
     'Added reliable return-review QR codes using a compact review summary.',
     'Added full .apreview files for detailed distance-review transfer.',
     'Redesigned Reviews and QR receiving to match the compact Assessor+ interface.',
+    'Fixed QR camera startup with camera retries, permission guidance and a restart control.',
     'Modernised professional review layout with automatic RAG, target dates, EPA readiness, progress snapshot and three signatures.',
     'Apprentice+ V1.8 can scan the completed-review QR directly.'
   ];
