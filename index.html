@@ -159,6 +159,8 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 .profile-history-item{background:#f8f7fb;border-radius:7px;padding:8px}
 .profile-history-item span{display:block;font-size:11px;color:var(--muted);font-weight:750}.profile-history-item strong{font-size:14px}
 .export-actions{display:flex;gap:7px;flex-wrap:wrap}
+
+.version-line{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 10px}.version-line strong{font-size:24px;color:#6d28d9}.update-modal{max-width:560px}.update-kicker{font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#6d28d9;margin-bottom:6px}.update-notes{margin:8px 0 0;padding-left:20px}.update-notes li{margin:8px 0;line-height:1.4}
 </style>
 </head>
 <body>
@@ -208,7 +210,7 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 </div>
 </section>
 <section id="assessments" class="page"><div class="page-head"><h1>Assessments</h1></div><div class="card placeholder-card"><div><h3>Assessments</h3><p class="muted">This area is ready for the assessment features once the register workflow is finalised.</p></div></div></section>
-<section id="settings" class="page"><div class="page-head"><h1>Settings</h1></div><div class="settings-grid"><div class="card"><h3>Time controls</h3><p class="muted">Every time and duration selector moves in 5-minute increments. Learner time banks are calculated from the first arrival in each teaching session.</p></div><div class="card"><h3>Demo data</h3><p class="muted">Learners, classes and registers are saved in this browser.</p><button class="btn danger" onclick="if(confirm('Clear all demo data?')){localStorage.removeItem(KEY);location.reload()}">Clear demo data</button></div></div></section>
+<section id="settings" class="page"><div class="page-head"><h1>Settings</h1></div><div class="settings-grid"><div class="card"><h3>Assessor+ version</h3><div class="version-line"><strong id="appVersion">V2.8</strong><span id="updateStatus" class="muted">Checking for updates…</span></div><p class="muted">Updates are checked automatically whenever Assessor+ opens. When a new version is ready, you will see what has changed before installing it.</p><button id="checkUpdateBtn" class="btn light" type="button">Check for updates</button></div><div class="card"><h3>Time controls</h3><p class="muted">Every time and duration selector moves in 5-minute increments. Learner time banks are calculated from the first arrival in each teaching session.</p></div><div class="card"><h3>App data</h3><p class="muted">Learners, classes and registers are saved in this browser.</p><button class="btn danger" onclick="if(confirm('Clear all app data?')){localStorage.removeItem(KEY);location.reload()}">Clear app data</button></div></div></section>
 </main></div>
 
 <div class="modal-wrap" id="learnerModal"><div class="modal"><h2 id="learnerTitle">Add learner</h2><div class="form-grid"><div class="field"><label>First name</label><input id="lf"></div><div class="field"><label>Last name</label><input id="ll"></div><div class="field"><label>Start date</label><input id="ls" type="date"></div><div class="field"><label>End date</label><input id="le" type="date"></div><div class="field"><label>Daily expected hours</label><input id="ldh" type="number" step="0.25" min="0" value="6"><div class="row-meta">Hours expected on each selected attendance day.</div></div><div class="field attendance-days-field"><label>Expected attendance days</label><div class="day-selector" id="attendanceDays">
@@ -219,6 +221,7 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 <div class="modal-wrap" id="classModal"><div class="modal"><h2 id="classTitle">Create register</h2><div class="form-grid"><div class="field"><label>Register name</label><input id="cn" placeholder="e.g. Brick Group 1"></div><div class="field"><label>Scheduled day</label><select id="cweekday"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option></select></div></div><h3>Timetable</h3><p class="muted">Set the first start time and each session end time. Enter the break duration in minutes and the next session start will adjust automatically.</p><div id="scheduleRows"></div><button class="btn small light" onclick="addSession()">+ Learning session</button><h3 style="margin-top:18px">Class holiday mode</h3><p class="muted">Add half terms, Christmas closures or other dates when this class is not attending. Learners in other classes are unaffected.</p><div id="classHolidayRows"></div><button class="btn small light" onclick="addClassHoliday()">+ Add class holiday</button><div class="holiday-summary" id="classHolidaySummary"></div><h3 style="margin-top:18px">Learners</h3><div id="classChecks" class="check-grid"></div><div class="modal-foot"><button class="btn light" onclick="closeM('classModal')">Cancel</button><button class="btn primary" onclick="saveClass()">Save class</button></div></div></div>
 <div class="modal-wrap" id="startModal"><div class="modal"><h2>Start register</h2><div class="form-grid"><div class="field full"><label>Class</label><select id="startClass"></select></div><div class="field"><label>Register date</label><input id="startDate" type="date"></div></div><div class="modal-foot"><button class="btn light" onclick="closeM('startModal')">Cancel</button><button class="btn primary" onclick="startRegister()">Start register</button></div></div></div>
 <div class="modal-wrap" id="editLogModal"><div class="modal" style="max-width:980px"><h2>Edit register log</h2><div id="editLogContent"></div><div class="modal-foot"><button class="btn light" onclick="closeM('editLogModal')">Cancel</button><button class="btn primary" onclick="saveEditedLog()">Save corrections</button></div></div></div>
+<div class="modal-wrap" id="updateModal" role="dialog" aria-modal="true" aria-labelledby="updateTitle"><div class="modal update-modal"><div class="update-kicker">Assessor+ update</div><h2 id="updateTitle">A new version is available</h2><p class="muted" id="updateVersionText">The latest Assessor+ update is ready to install.</p><h3>What’s new</h3><ul id="updateNotes" class="update-notes"><li>Improved app update notifications.</li><li>Version information added to Settings.</li></ul><div class="modal-foot"><button id="updateLaterBtn" class="btn light" type="button">Later</button><button id="updateNowBtn" class="btn primary" type="button">Update now</button></div></div></div>
 
 <script>
 const KEY='assessorplus_timed_demo_v1';
@@ -662,7 +665,83 @@ setInterval(()=>{$('topClock').textContent=nowTime();processClock()},1000);$('to
 </script>
 
 <script>
-if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+(() => {
+  const APP_VERSION = '2.8';
+  const RELEASE_NOTES = [
+    'Added the Assessor+ version number to Settings.',
+    'Added automatic update detection when the app opens.',
+    'Added a What’s new popup and an Update now button.'
+  ];
+  let registration = null;
+  let waitingWorker = null;
+  let refreshing = false;
+
+  const setStatus = text => { const el = document.getElementById('updateStatus'); if (el) el.textContent = text; };
+  const showUpdate = worker => {
+    waitingWorker = worker;
+    const versionText = document.getElementById('updateVersionText');
+    if (versionText) versionText.textContent = 'A newer Assessor+ version is ready. Install it now to use the latest changes.';
+    const notes = document.getElementById('updateNotes');
+    if (notes) notes.innerHTML = RELEASE_NOTES.map(note => `<li>${note}</li>`).join('');
+    document.getElementById('updateModal')?.classList.add('open');
+    setStatus('Update available');
+  };
+  const inspectRegistration = reg => {
+    registration = reg;
+    if (reg.waiting) showUpdate(reg.waiting);
+    reg.addEventListener('updatefound', () => {
+      const worker = reg.installing;
+      if (!worker) return;
+      setStatus('Downloading update…');
+      worker.addEventListener('statechange', () => {
+        if (worker.state === 'installed') {
+          if (navigator.serviceWorker.controller) showUpdate(worker);
+          else setStatus(`V${APP_VERSION} installed`);
+        }
+      });
+    });
+  };
+
+  document.getElementById('checkUpdateBtn')?.addEventListener('click', async () => {
+    if (!registration) return setStatus('Updates are unavailable in this browser');
+    setStatus('Checking for updates…');
+    try {
+      await registration.update();
+      if (registration.waiting) showUpdate(registration.waiting);
+      else setTimeout(() => { if (!waitingWorker) setStatus('Assessor+ is up to date'); }, 700);
+    } catch { setStatus('Could not check for updates'); }
+  });
+  document.getElementById('updateLaterBtn')?.addEventListener('click', () => {
+    document.getElementById('updateModal')?.classList.remove('open');
+    setStatus('Update available');
+  });
+  document.getElementById('updateNowBtn')?.addEventListener('click', () => {
+    const button = document.getElementById('updateNowBtn');
+    if (button) { button.disabled = true; button.textContent = 'Installing…'; }
+    setStatus('Installing update…');
+    (waitingWorker || registration?.waiting)?.postMessage({ type: 'SKIP_WAITING' });
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      location.reload();
+    });
+    window.addEventListener('load', async () => {
+      try {
+        const reg = await navigator.serviceWorker.register('./sw.js');
+        inspectRegistration(reg);
+        setStatus('Assessor+ is up to date');
+        await reg.update().catch(() => {});
+      } catch {
+        setStatus('Updates are unavailable in this browser');
+      }
+    });
+  } else {
+    setStatus('Updates are unavailable in this browser');
+  }
+})();
 </script>
 </body>
 </html>
