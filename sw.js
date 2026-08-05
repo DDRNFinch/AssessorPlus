@@ -1,4 +1,4 @@
-const CACHE='assessor-plus-v1.2-simple-registers';
+const CACHE='assessor-plus-v1.3-saved-class-registers';
 const ASSETS=['./','./index.html','./main.css','./app.js','./manifest.webmanifest','./assessor-logo.png','./icon-192.png','./icon-512.png','./.nojekyll'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
