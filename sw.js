@@ -1,4 +1,4 @@
-const CACHE_NAME = "assessor-plus-v0.2";
+const CACHE_NAME = "assessor-plus-v0.3";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -6,7 +6,8 @@ const APP_SHELL = [
   "./app.js",
   "./manifest.webmanifest",
   "./icon-192.png",
-  "./icon-512.png"
+  "./icon-512.png",
+  "./assessor-logo.png"
 ];
 
 self.addEventListener("install", event => {
