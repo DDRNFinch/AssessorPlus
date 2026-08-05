@@ -1,4 +1,4 @@
-const CACHE = 'assessorplus-v3-0-register-exports';
+const CACHE = 'assessorplus-v3-1-learner-exports';
 const ASSETS = [
   './',
   './index.html',
