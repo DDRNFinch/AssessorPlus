@@ -1,577 +1,180 @@
-const STORAGE_KEY = "assessorPlusDepartment";
-const CLASS_STORAGE_KEY = "assessorPlusClassesV08";
-const SESSION_STORAGE_KEY = "assessorPlusActiveSessionV08";
-const REGISTER_HISTORY_KEY = "assessorPlusRegisterHistoryV08";
-const CONNECTION_STORAGE_KEY = "assessorPlusRegisterConnectionV08";
-const ATTENDANCE_DB_URL = "https://apprenticeplus-d6a43-default-rtdb.europe-west1.firebasedatabase.app";
-const ATTENDANCE_ROOT = "assessorPlusAttendance";
-const pages = [...document.querySelectorAll(".page")];
-const navItems = [...document.querySelectorAll("[data-page-target]")];
-const content = document.getElementById("appContent");
-const installButton = document.getElementById("installButton");
-const installRow = document.getElementById("installRow");
-const installDialog = document.getElementById("installDialog");
-const dialogInstallButton = document.getElementById("dialogInstallButton");
-const installMessage = document.getElementById("installMessage");
-const departmentDialog = document.getElementById("departmentDialog");
-const changeDepartment = document.getElementById("changeDepartment");
-const closeDepartmentDialog = document.getElementById("closeDepartmentDialog");
-const homeStatistics = document.getElementById("homeStatistics");
-const dashboardAreas = document.getElementById("dashboardAreas");
-
-const departmentConfig = {
-  Tutor: {
-    copy: "Teaching, classes and learner support",
-    intro: "Your teaching activity, learner attendance and upcoming sessions at a glance.",
-    stats: [
-      ["Attendance", "—", "No attendance recorded yet"],
-      ["My classes", "0", "Classes assigned to you"],
-      ["Registers due", "0", "Registers awaiting completion"],
-      ["Learners", "0", "Learners across your classes"]
-    ],
-    areas: [
-      ["My Classes", "Create and manage teaching groups"],
-      ["Registers", "Take attendance and review previous registers"],
-      ["Learners", "View learners assigned to your classes"],
-      ["Teaching Schedule", "See upcoming sessions and activity"]
-    ]
-  },
-  Assessor: {
-    copy: "Assessment, evidence and progress reviews",
-    intro: "Your caseload attendance, progress and assessment activity at a glance.",
-    stats: [
-      ["Attendance", "—", "Average across your caseload"],
-      ["Progress", "—", "Average learner progress"],
-      ["Learners", "0", "Linked by unique learner ID"],
-      ["Reviews due", "0", "Reviews requiring action"]
-    ],
-    areas: [
-      ["Caseload", "Learners linked to your assessor account"],
-      ["Attendance", "Attendance data linked by learner ID"],
-      ["Progress", "Course and evidence progress by learner"],
-      ["Reviews", "Plan, complete and record reviews"]
-    ]
-  },
-  Employer: {
-    copy: "Workplace progress and attendance",
-    intro: "A summary of apprentices, attendance and workplace actions.",
-    stats: [
-      ["Apprentices", "0", "Linked to your organisation"],
-      ["Attendance", "—", "Average apprentice attendance"],
-      ["Reviews due", "0", "Employer input required"],
-      ["Actions", "0", "Outstanding workplace actions"]
-    ],
-    areas: [
-      ["My Apprentices", "View apprentices linked to your workplace"],
-      ["Attendance", "Review attendance and absence information"],
-      ["Progress", "See apprentice progress summaries"],
-      ["Reviews", "Add employer comments and confirmations"]
-    ]
-  },
-  Management: {
-    copy: "Oversight, performance and reporting",
-    intro: "Organisation-wide performance indicators and areas requiring attention.",
-    stats: [
-      ["Active learners", "0", "Across all departments"],
-      ["Attendance", "—", "Organisation-wide average"],
-      ["On track", "—", "Learners meeting progress expectations"],
-      ["Alerts", "0", "Items requiring management action"]
-    ],
-    areas: [
-      ["Performance", "Attendance, progress and completion KPIs"],
-      ["Staff Overview", "Tutor and assessor caseload summaries"],
-      ["Quality", "Reviews, compliance and quality actions"],
-      ["Reports", "Organisation and department reporting"]
-    ]
-  },
-  Administration: {
-    copy: "Records, coordination and compliance",
-    intro: "Learner records, identifiers and administrative actions at a glance.",
-    stats: [
-      ["Learners", "0", "Learner records created"],
-      ["New this month", "0", "Recently added learners"],
-      ["Missing details", "0", "Records requiring completion"],
-      ["Departments", "0", "Active department workspaces"]
-    ],
-    areas: [
-      ["Learner Records", "Add learners and generate unique learner IDs"],
-      ["Staff Records", "Manage staff and department access"],
-      ["Data Quality", "Find incomplete or duplicate records"],
-      ["Exports", "Prepare administrative reports and data files"]
-    ]
-  },
-  Other: {
-    copy: "General education workspace",
-    intro: "A flexible overview ready to be personalised around your work.",
-    stats: [
-      ["Learners", "0", "Learners linked to this workspace"],
-      ["Attendance", "—", "No attendance data yet"],
-      ["Tasks", "0", "Outstanding actions"],
-      ["Alerts", "0", "Items requiring attention"]
-    ],
-    areas: [
-      ["Learners", "People linked to this workspace"],
-      ["Attendance", "Attendance summaries and records"],
-      ["Tasks", "Upcoming and outstanding activity"],
-      ["Reports", "Workspace information and exports"]
-    ]
-  }
-};
-
+const DATA_KEY = 'assessorPlusSimpleRegisterV1';
+const state = loadState();
+let currentClassId = null;
+let currentRegisterId = null;
+let currentSessionIndex = 0;
 let deferredInstallPrompt = null;
-let selectedDepartment = localStorage.getItem(STORAGE_KEY) || "";
+let confirmCallback = null;
 
-function showPage(pageName) {
-  const validPage = pages.some(page => page.dataset.page === pageName) ? pageName : "home";
-  pages.forEach(page => page.classList.toggle("active", page.dataset.page === validPage));
-  navItems.forEach(item => item.classList.toggle("active", item.dataset.pageTarget === validPage));
-  history.replaceState({ page: validPage }, "", `#${validPage}`);
-  content.focus({ preventScroll: true });
-  window.scrollTo({ top: 0, behavior: "instant" });
+const $ = id => document.getElementById(id);
+const pages = [...document.querySelectorAll('.page')];
+const navItems = [...document.querySelectorAll('[data-page-target]')];
+const classDialog = $('classDialog');
+const learnerDialog = $('learnerDialog');
+const confirmDialog = $('confirmDialog');
+
+function loadState(){
+  try{return JSON.parse(localStorage.getItem(DATA_KEY)) || {classes:[],registers:[]};}
+  catch{return {classes:[],registers:[]};}
+}
+function saveState(){localStorage.setItem(DATA_KEY,JSON.stringify(state));renderHome();}
+function uid(prefix='id'){return `${prefix}_${Date.now().toString(36)}_${crypto.getRandomValues(new Uint32Array(1))[0].toString(36)}`;}
+function esc(value=''){return String(value).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function todayISO(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function timeText(iso){return iso?new Date(iso).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'—';}
+function minutesToText(mins){mins=Math.max(0,Math.round(mins));const h=Math.floor(mins/60),m=mins%60;return h?`${h}h ${m}m`:`${m}m`;}
+function timeToMinutes(value){const [h,m]=value.split(':').map(Number);return h*60+m;}
+function scheduledMinutes(session){return Math.max(0,timeToMinutes(session.end)-timeToMinutes(session.start));}
+function creditedMinutes(session,markedAt,date){
+  if(!markedAt)return 0;
+  const mark=new Date(markedAt);
+  const [eh,em]=session.end.split(':').map(Number);
+  const end=new Date(`${date}T${session.end}:00`);
+  if(Number.isNaN(end.getTime())) return scheduledMinutes(session);
+  const start=new Date(`${date}T${session.start}:00`);
+  const effectiveStart=mark<start?start:mark;
+  return Math.max(0,Math.min(scheduledMinutes(session),(end-effectiveStart)/60000));
+}
+function showToast(message){const t=$('toast');t.textContent=message;t.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove('show'),2200);}
+function showPage(name){
+  pages.forEach(p=>p.classList.toggle('active',p.dataset.page===name));
+  navItems.forEach(n=>n.classList.toggle('active',n.dataset.pageTarget===name));
+  document.querySelector('.bottom-nav').style.display=['class-detail','live-register'].includes(name)?'none':'grid';
+  window.scrollTo(0,0);
+  if(name==='registers')renderClasses();
+  if(name==='home')renderHome();
 }
 
-function renderStatistics(config) {
-  homeStatistics.innerHTML = config.stats.map(([label, value, note]) => `
-    <article class="statistic-card">
-      <span class="statistic-label">${label}</span>
-      <strong>${value}</strong>
-      <small>${note}</small>
+function renderHome(){
+  $('statClasses').textContent=state.classes.length;
+  $('statLearners').textContent=state.classes.reduce((n,c)=>n+c.learners.length,0);
+  $('statRegisters').textContent=state.registers.length;
+  const today=todayISO();
+  const presentIds=new Set(state.registers.filter(r=>r.date===today).flatMap(r=>Object.values(r.attendance||{}).filter(v=>v?.markedAt).map(v=>v.learnerId)));
+  $('statPresent').textContent=presentIds.size;
+}
+function renderClasses(){
+  const empty=$('classesEmpty'),list=$('classList');
+  empty.hidden=state.classes.length>0;
+  list.innerHTML=state.classes.map(c=>{
+    const sessions=c.sessions||[];
+    const total=sessions.reduce((n,s)=>n+scheduledMinutes(s),0);
+    return `<article class="class-card">
+      <div class="class-card-header"><div><h3>${esc(c.name)}</h3><p>${esc(c.location||'No location')} · ${c.learners.length} learner${c.learners.length===1?'':'s'}</p></div><span class="pill">${minutesToText(total)}</span></div>
+      <div class="card-actions"><button class="text-button" data-open-class="${c.id}">Open</button><button class="text-button" data-start-class="${c.id}">Start register</button><button class="text-button" data-edit-class="${c.id}">Edit</button><button class="text-button danger" data-delete-class="${c.id}">Delete</button></div>
+    </article>`;
+  }).join('');
+}
+function getClass(id=currentClassId){return state.classes.find(c=>c.id===id);}
+function renderClassDetail(){
+  const c=getClass();if(!c)return showPage('registers');
+  const regs=state.registers.filter(r=>r.classId===c.id).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  $('classDetail').innerHTML=`
+    <article class="detail-card"><div class="class-card-header"><div><p class="eyebrow">CLASS</p><h2>${esc(c.name)}</h2><p class="meta">${esc(c.location||'No location')}</p></div><button class="primary-button compact" data-start-class="${c.id}">Start register</button></div>
+      <div class="session-list">${c.sessions.map((s,i)=>`<div class="session-summary"><strong>Session ${i+1}</strong><span>${s.start}–${s.end} · ${minutesToText(scheduledMinutes(s))}</span></div>`).join('')}</div>
     </article>
-  `).join("");
+    <article class="detail-card"><div class="section-title-row"><div><h3>Learners</h3><p>${c.learners.length} on this register</p></div><button class="secondary-button compact" id="addLearnerButton">+ Learner</button></div>
+      <div class="learner-list">${c.learners.length?c.learners.map(l=>`<div class="learner-row"><strong>${esc(l.name)}</strong><button data-remove-learner="${l.id}" aria-label="Remove ${esc(l.name)}">×</button></div>`).join(''):'<p class="meta">No learners added yet.</p>'}</div>
+    </article>
+    <article class="detail-card"><div class="section-title-row"><div><h3>Register history</h3><p>Saved on this device</p></div></div>
+      <div>${regs.length?regs.map(r=>{const counts=registerCounts(r,c);return `<button class="list-row" data-open-register="${r.id}"><span><strong>${new Date(`${r.date}T12:00:00`).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</strong><small>${counts.present}/${c.learners.length} learners marked · ${r.finishedAt?'Finished':'Open'}</small></span><span>›</span></button>`}).join(''):'<p class="meta">No registers completed yet.</p>'}</div>
+    </article>`;
 }
-
-function renderDashboardAreas(config) {
-  dashboardAreas.innerHTML = config.areas.map(([title, description]) => {
-    const registerArea = title === "Registers" || title === "Attendance";
-    return `
-      <button class="dashboard-area-card" type="button" data-area="${registerArea ? "registers" : "soon"}" ${registerArea ? "" : "disabled"}>
-        <span><strong>${title}</strong><small>${description}</small></span>
-        <span class="status-pill">${registerArea ? "Open" : "Soon"}</span>
-      </button>`;
-  }).join("");
+function registerCounts(r,c){
+  let present=0,totalMinutes=0;
+  c.learners.forEach(l=>{let learnerMinutes=0; c.sessions.forEach((s,i)=>{const a=r.attendance?.[`${l.id}_${i}`];if(a?.markedAt)learnerMinutes+=creditedMinutes(s,a.markedAt,r.date);});if(learnerMinutes>0)present++;totalMinutes+=learnerMinutes;});
+  return {present,totalMinutes};
 }
-
-dashboardAreas.addEventListener("click", event => {
-  const button = event.target.closest("[data-area]");
-  if (button?.dataset.area === "registers") showPage("registers");
-});
-
-function applyDepartment(department) {
-  selectedDepartment = department;
-  localStorage.setItem(STORAGE_KEY, department);
-  const config = departmentConfig[department] || departmentConfig.Other;
-  document.getElementById("roleSubtitle").textContent = `${department} workspace`;
-  document.getElementById("dashboardGreeting").textContent = `${department} Home`;
-  document.getElementById("dashboardIntro").textContent = config.intro;
-  document.getElementById("homeStatisticsTitle").textContent = `${department} overview`;
-  document.getElementById("homeStatisticsIntro").textContent = "Statistics from the main areas of your dashboard.";
-  document.getElementById("homePanelTitle").textContent = `${department} activity`;
-  document.getElementById("workspaceMessage").textContent = "These figures will update automatically as records, learners and activity are added to Assessor+.";
-  document.getElementById("currentDepartmentText").textContent = `${department} workspace selected`;
-  document.getElementById("dashboardNavLabel").textContent = "Dashboard";
-  document.getElementById("departmentPageTitle").textContent = `${department} Dashboard`;
-  document.getElementById("departmentHeading").textContent = `${department} Dashboard`;
-  document.getElementById("departmentDescription").textContent = config.copy;
-  renderStatistics(config);
-  renderDashboardAreas(config);
-  if (departmentDialog.open) departmentDialog.close();
-}
-
-function openDepartmentSelector(forceChoice = false) {
-  closeDepartmentDialog.hidden = forceChoice;
-  departmentDialog.showModal();
-}
-
-navItems.forEach(item => item.addEventListener("click", () => showPage(item.dataset.pageTarget)));
-window.addEventListener("hashchange", () => showPage(location.hash.replace("#", "") || "home"));
-document.querySelectorAll("[data-department]").forEach(button => button.addEventListener("click", () => applyDepartment(button.dataset.department)));
-changeDepartment.addEventListener("click", () => openDepartmentSelector(false));
-
-window.addEventListener("beforeinstallprompt", event => {
-  event.preventDefault();
-  deferredInstallPrompt = event;
-  installButton.hidden = false;
-  dialogInstallButton.hidden = false;
-  installMessage.textContent = "Assessor+ is ready to install on this device.";
-});
-window.addEventListener("appinstalled", () => {
-  deferredInstallPrompt = null;
-  installButton.hidden = true;
-  dialogInstallButton.hidden = true;
-});
-async function promptInstall() {
-  if (!deferredInstallPrompt) {
-    installMessage.innerHTML = "Open your browser menu and select <strong>Install app</strong> or <strong>Add to Home screen</strong>.";
-    dialogInstallButton.hidden = true;
-    installDialog.showModal();
-    return;
-  }
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt = null;
-  installButton.hidden = true;
-  dialogInstallButton.hidden = true;
-}
-installButton.addEventListener("click", promptInstall);
-installRow.addEventListener("click", promptInstall);
-dialogInstallButton.addEventListener("click", promptInstall);
-
-if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(console.error));
-if (selectedDepartment) applyDepartment(selectedDepartment);
-else window.addEventListener("load", () => openDepartmentSelector(true), { once: true });
-showPage(location.hash.replace("#", "") || "home");
-
-
-
-// V0.9 learner ID and QR register workspace
-const classDialog = document.getElementById("classDialog");
-const classForm = document.getElementById("classForm");
-const classSelect = document.getElementById("classSelect");
-const registerEmpty = document.getElementById("registerEmpty");
-const registerWorkspace = document.getElementById("registerWorkspace");
-const learnerRegisterList = document.getElementById("learnerRegisterList");
-const activeSessionPanel = document.getElementById("activeSessionPanel");
-const registerSettingsDialog = document.getElementById("registerSettingsDialog");
-let classes = JSON.parse(localStorage.getItem(CLASS_STORAGE_KEY) || "[]");
-let activeSession = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) || "null");
-let registerHistory = JSON.parse(localStorage.getItem(REGISTER_HISTORY_KEY) || "[]");
-let registerConnection = JSON.parse(localStorage.getItem(CONNECTION_STORAGE_KEY) || "{}");
-let selectedClassId = classes[0]?.id || "";
-let registerPollTimer = null;
-
-const cleanId = value => String(value || "").replace(/\D/g, "").slice(0, 16);
-const makeId = (length = 16) => {
-  const bytes = new Uint8Array(length);
-  crypto.getRandomValues(bytes);
-  return [...bytes].map(byte => String(byte % 10)).join("");
-};
-const saveClasses = () => localStorage.setItem(CLASS_STORAGE_KEY, JSON.stringify(classes));
-const saveSession = () => {
-  if (activeSession) localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(activeSession));
-  else localStorage.removeItem(SESSION_STORAGE_KEY);
-};
-const currentClass = () => classes.find(item => item.id === selectedClassId) || classes[0] || null;
-
-function allLearnerIds() {
-  return new Set(classes.flatMap(group => group.learners || []).map(item => item.id));
-}
-function makeUniqueLearnerId(reserved = new Set()) {
-  const existing = allLearnerIds();
-  let id = "";
-  do { id = makeId(16); } while (existing.has(id) || reserved.has(id));
-  return id;
-}
-function parseLearners(text) {
-  const seen = new Set();
-  return String(text || "").split(/\n+/).map(line => {
-    const parts = line.split(",");
-    const name = String(parts.shift() || "").trim();
-    let id = cleanId(parts.join(","));
-    if (!name) return null;
-    if (id.length !== 16 || seen.has(id)) id = makeUniqueLearnerId(seen);
-    seen.add(id);
-    return { name, id };
-  }).filter(Boolean);
-}
-
-function updateRegisterHomeStats() {
-  if (!selectedDepartment || !["Tutor", "Assessor"].includes(selectedDepartment)) return;
-  const completed = registerHistory.length;
-  const learners = classes.reduce((total, item) => total + item.learners.length, 0);
-  const stats = [...homeStatistics.querySelectorAll(".statistic-card")];
-  const registerCard = stats.find(card => card.querySelector(".statistic-label")?.textContent.includes("Registers"));
-  const learnerCard = stats.find(card => card.querySelector(".statistic-label")?.textContent === "Learners");
-  if (registerCard) registerCard.querySelector("strong").textContent = activeSession ? "1" : "0";
-  if (learnerCard) learnerCard.querySelector("strong").textContent = learners;
-  if (completed && stats[0]?.querySelector("strong")?.textContent === "—") {
-    const all = registerHistory.flatMap(item => item.learners || []);
-    const present = all.filter(item => ["Present", "Late"].includes(item.status)).length;
-    stats[0].querySelector("strong").textContent = all.length ? `${Math.round(present / all.length * 100)}%` : "—";
-  }
-}
-
-function renderClassSelect() {
-  registerEmpty.hidden = classes.length > 0;
-  registerWorkspace.hidden = classes.length === 0;
-  if (!classes.length) return;
-  if (!classes.some(item => item.id === selectedClassId)) selectedClassId = classes[0].id;
-  classSelect.innerHTML = classes.map(item => `<option value="${item.id}" ${item.id === selectedClassId ? "selected" : ""}>${item.name}</option>`).join("");
-  renderRegister();
-  updateRegisterHomeStats();
-}
-
-function getSessionForClass() {
-  return activeSession?.classId === selectedClassId ? activeSession : null;
-}
-
-function renderRegister() {
-  const group = currentClass();
-  if (!group) return;
-  document.getElementById("sessionClassName").textContent = group.name;
-  document.getElementById("sessionSummary").textContent = `${group.start}–${group.end} · late after ${group.lateMinutes} minutes · ${group.learners.length} learners`;
-  const session = getSessionForClass();
-  activeSessionPanel.hidden = !session;
-  document.getElementById("startSessionButton").hidden = Boolean(session);
-  if (session) {
-    const started = new Date(session.startedAt);
-    document.getElementById("activeSessionInfo").textContent = `${started.toLocaleDateString("en-GB")} · started ${started.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"})} · session ${session.id}`;
-  }
-  const records = session?.learners || group.learners.map(learner => ({...learner, status:"Unconfirmed", checkedAt:null, source:"—"}));
-  learnerRegisterList.innerHTML = records.length ? records.map(record => `
-    <article class="learner-row" data-learner-id="${record.id}">
-      <div class="learner-name"><strong>${record.name}</strong><small>${record.id.replace(/(\d{4})(?=\d)/g, "$1 ")} · ${record.checkedAt ? new Date(record.checkedAt).toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"}) : "not checked in"}${record.source && record.source !== "—" ? ` · ${record.source}` : ""}</small></div>
-      <div class="status-controls">
-        <button type="button" class="status-button share-id-button" data-share-learner-id="${record.id}">ID / QR</button>
-        ${["Present","Late","Absent","Authorised"].map(status => `<button type="button" class="status-button ${record.status === status ? "active" : ""}" data-status="${status}" data-id="${record.id}">${status}</button>`).join("")}
-      </div>
-    </article>`).join("") : `<div class="basic-page"><p>No learners have been added to this class.</p></div>`;
-  renderRegisterStats(records);
-}
-
-function renderRegisterStats(records) {
-  const counts = {Present:0,Late:0,Absent:0,Unconfirmed:0,Authorised:0};
-  records.forEach(item => counts[item.status] = (counts[item.status] || 0) + 1);
-  document.getElementById("registerStats").innerHTML = [
-    ["Present", counts.Present], ["Late", counts.Late], ["Absent", counts.Absent], ["Waiting", counts.Unconfirmed]
-  ].map(([label,value]) => `<div class="register-stat"><strong>${value}</strong><small>${label}</small></div>`).join("");
-}
-
-function openClassDialog(edit = false) {
-  const group = edit ? currentClass() : null;
-  document.getElementById("classDialogTitle").textContent = group ? "Edit class" : "Create class";
-  document.getElementById("classRecordId").value = group?.id || "";
-  document.getElementById("classNameInput").value = group?.name || "";
-  document.getElementById("classStartInput").value = group?.start || "09:00";
-  document.getElementById("classEndInput").value = group?.end || "16:00";
-  document.getElementById("lateMinutesInput").value = group?.lateMinutes ?? 5;
-  document.getElementById("radiusInput").value = group?.radius ?? 150;
-  document.getElementById("classLearnersInput").value = group?.learners.map(item => `${item.name}, ${item.id}`).join("\n") || "";
+function openClass(id){currentClassId=id;renderClassDetail();showPage('class-detail');}
+function openClassDialog(id=null){
+  const c=id?getClass(id):null;
+  $('editingClassId').value=c?.id||'';$('className').value=c?.name||'';$('classLocation').value=c?.location||'';
+  $('classDialogTitle').textContent=c?'Edit class':'Create class';
+  $('sessionRows').innerHTML='';(c?.sessions?.length?c.sessions:[{start:'09:00',end:'10:00'},{start:'11:00',end:'13:00'}]).forEach(addSessionRow);
   classDialog.showModal();
 }
+function addSessionRow(session={start:'09:00',end:'10:00'}){
+  const row=document.createElement('div');row.className='session-edit-row';row.innerHTML=`<label>Starts<input type="time" class="session-start" value="${session.start}" required></label><label>Ends<input type="time" class="session-end" value="${session.end}" required></label><button type="button" class="remove-session">×</button>`;
+  row.querySelector('.remove-session').onclick=()=>{if($('sessionRows').children.length===1)return showToast('A class needs at least one session');row.remove();};$('sessionRows').append(row);
+}
+function startRegister(classId){
+  const c=getClass(classId);if(!c)return;
+  if(!c.learners.length)return showToast('Add at least one learner first');
+  let r=state.registers.find(x=>x.classId===classId&&x.date===todayISO()&&!x.finishedAt);
+  if(!r){r={id:uid('reg'),classId,date:todayISO(),createdAt:new Date().toISOString(),finishedAt:null,attendance:{}};state.registers.push(r);saveState();}
+  currentClassId=classId;currentRegisterId=r.id;currentSessionIndex=0;renderLiveRegister();showPage('live-register');
+}
+function renderLiveRegister(){
+  const c=getClass(),r=state.registers.find(x=>x.id===currentRegisterId);if(!c||!r)return;
+  const counts=registerCounts(r,c);const current=c.sessions[currentSessionIndex];
+  $('liveRegister').innerHTML=`
+    <div class="live-header"><div><p class="eyebrow">${r.finishedAt?'SAVED REGISTER':'LIVE REGISTER'}</p><h2>${esc(c.name)}</h2><p class="meta">${new Date(`${r.date}T12:00:00`).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</p></div><div class="live-actions"><button class="secondary-button compact" data-export-register="${r.id}">CSV</button>${r.finishedAt?'':`<button class="primary-button compact" id="finishRegisterButton">Finish</button>`}</div></div>
+    <div class="live-card"><div class="live-session-tabs">${c.sessions.map((s,i)=>`<button class="session-tab ${i===currentSessionIndex?'active':''}" data-session-index="${i}">Session ${i+1} · ${s.start}–${s.end}</button>`).join('')}</div></div>
+    <div class="live-summary"><article><span>Marked</span><strong>${counts.present}/${c.learners.length}</strong></article><article><span>Session</span><strong>${current.start}–${current.end}</strong></article><article><span>Session length</span><strong>${minutesToText(scheduledMinutes(current))}</strong></article><article><span>Total credited</span><strong>${minutesToText(counts.totalMinutes)}</strong></article></div>
+    <div class="live-card"><h3>Session ${currentSessionIndex+1}</h3><p class="meta">Tick each learner when they arrive for this session. The exact time is saved.</p><div class="attendance-list">${c.learners.map(l=>{
+      const key=`${l.id}_${currentSessionIndex}`,a=r.attendance[key],mins=a?creditedMinutes(current,a.markedAt,r.date):0;
+      return `<div class="attendance-row ${a?.markedAt?'checked':''}"><div class="attendance-name"><strong>${esc(l.name)}</strong><small>${a?.markedAt?`Ticked ${timeText(a.markedAt)} · ${minutesToText(mins)} credited`:'Not yet marked'}</small></div><button class="tick-button" data-toggle-attendance="${l.id}" ${r.finishedAt?'disabled':''}>${a?.markedAt?'✓ Present':'Tick present'}</button></div>`;
+    }).join('')}</div></div>
+    <div class="live-card"><h3>Learner totals</h3><div>${c.learners.map(l=>{let total=0,marks=0;c.sessions.forEach((s,i)=>{const a=r.attendance[`${l.id}_${i}`];if(a?.markedAt){marks++;total+=creditedMinutes(s,a.markedAt,r.date);}});return `<div class="history-row"><strong>${esc(l.name)}</strong><small>${marks}/${c.sessions.length} sessions · ${minutesToText(total)} attended</small></div>`}).join('')}</div></div>`;
+}
+function toggleAttendance(learnerId){
+  const c=getClass(),r=state.registers.find(x=>x.id===currentRegisterId);if(!c||!r||r.finishedAt)return;
+  const key=`${learnerId}_${currentSessionIndex}`;
+  if(r.attendance[key]?.markedAt) delete r.attendance[key]; else r.attendance[key]={learnerId,sessionIndex:currentSessionIndex,markedAt:new Date().toISOString()};
+  saveState();renderLiveRegister();
+}
+function finishRegister(){const r=state.registers.find(x=>x.id===currentRegisterId);if(!r)return;r.finishedAt=new Date().toISOString();saveState();renderLiveRegister();showToast('Register saved');}
+function exportRegister(id){
+  const r=state.registers.find(x=>x.id===id),c=state.classes.find(x=>x.id===r?.classId);if(!r||!c)return;
+  const header=['Learner',...c.sessions.flatMap((s,i)=>[`Session ${i+1} (${s.start}-${s.end}) tick time`,`Session ${i+1} credited minutes`]),'Total minutes'];
+  const rows=c.learners.map(l=>{let total=0;const cols=[l.name];c.sessions.forEach((s,i)=>{const a=r.attendance[`${l.id}_${i}`];const mins=a?creditedMinutes(s,a.markedAt,r.date):0;total+=mins;cols.push(a?timeText(a.markedAt):'',String(Math.round(mins)));});cols.push(String(Math.round(total)));return cols;});
+  download(`${safeName(c.name)}-${r.date}-register.csv`,[header,...rows].map(row=>row.map(csvCell).join(',')).join('\n'),'text/csv');
+}
+function csvCell(v){return `"${String(v).replace(/"/g,'""')}"`;}
+function safeName(v){return v.replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'');}
+function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+function askConfirm(title,message,action,label='Delete'){confirmCallback=action;$('confirmTitle').textContent=title;$('confirmMessage').textContent=message;$('confirmAction').textContent=label;confirmDialog.showModal();}
 
-classForm.addEventListener("submit", event => {
-  event.preventDefault();
-  const id = document.getElementById("classRecordId").value || makeId();
-  const record = {
-    id,
-    name: document.getElementById("classNameInput").value.trim(),
-    start: document.getElementById("classStartInput").value,
-    end: document.getElementById("classEndInput").value,
-    lateMinutes: Number(document.getElementById("lateMinutesInput").value || 5),
-    radius: Number(document.getElementById("radiusInput").value || 150),
-    learners: parseLearners(document.getElementById("classLearnersInput").value)
-  };
-  const index = classes.findIndex(item => item.id === id);
-  if (index >= 0) classes[index] = record; else classes.push(record);
-  selectedClassId = id;
-  saveClasses();
-  classDialog.close();
-  renderClassSelect();
+// Global interaction routing
+document.addEventListener('click',e=>{
+  const target=e.target.closest('button,[data-go],[data-new-class]');if(!target)return;
+  if(target.dataset.pageTarget)showPage(target.dataset.pageTarget);
+  if(target.dataset.go)showPage(target.dataset.go);
+  if(target.hasAttribute('data-new-class')||target.id==='newClassButton')openClassDialog();
+  if(target.dataset.openClass)openClass(target.dataset.openClass);
+  if(target.dataset.editClass)openClassDialog(target.dataset.editClass);
+  if(target.dataset.startClass)startRegister(target.dataset.startClass);
+  if(target.dataset.deleteClass){const c=getClass(target.dataset.deleteClass);askConfirm('Delete class?',`Delete ${c.name} and all of its register history?`,()=>{state.classes=state.classes.filter(x=>x.id!==c.id);state.registers=state.registers.filter(x=>x.classId!==c.id);saveState();renderClasses();});}
+  if(target.dataset.back)showPage(target.dataset.back);
+  if(target.dataset.closeDialog!==undefined)target.closest('dialog')?.close();
+  if(target.id==='addSessionRow')addSessionRow();
+  if(target.id==='addLearnerButton')learnerDialog.showModal();
+  if(target.dataset.removeLearner){const c=getClass(),l=c.learners.find(x=>x.id===target.dataset.removeLearner);askConfirm('Remove learner?',`Remove ${l.name} from this class? Existing historic register entries will remain in backups but no longer display.`,()=>{c.learners=c.learners.filter(x=>x.id!==l.id);saveState();renderClassDetail();});}
+  if(target.dataset.sessionIndex!==undefined){currentSessionIndex=Number(target.dataset.sessionIndex);renderLiveRegister();}
+  if(target.dataset.toggleAttendance)toggleAttendance(target.dataset.toggleAttendance);
+  if(target.id==='finishRegisterButton')askConfirm('Finish register?','The register will be saved and attendance ticks will be locked.',finishRegister,'Finish');
+  if(target.dataset.exportRegister)exportRegister(target.dataset.exportRegister);
 });
 
-async function getCurrentLocation() {
-  if (!navigator.geolocation) return null;
-  return new Promise(resolve => navigator.geolocation.getCurrentPosition(
-    position => resolve({latitude:position.coords.latitude, longitude:position.coords.longitude, accuracy:position.coords.accuracy}),
-    () => resolve(null),
-    {enableHighAccuracy:true, timeout:10000, maximumAge:60000}
-  ));
-}
-
-async function firebaseRequest(path, options = {}) {
-  const url = `${ATTENDANCE_DB_URL}/${ATTENDANCE_ROOT}/${path}.json`;
-  const response = await fetch(url, {cache:"no-store", ...options, headers:{"Content-Type":"application/json", ...(options.headers||{})}});
-  if (!response.ok) throw new Error(`Attendance service error ${response.status}`);
-  return response.status === 204 ? null : response.json();
-}
-
-function publicSessionPayload(session) {
-  return {
-    id:session.id,
-    classId:session.classId,
-    startedAt:session.startedAt,
-    active:true,
-    radius:session.radius,
-    lateMinutes:session.lateMinutes,
-    startTime:currentClass()?.start || "09:00",
-    location:session.location,
-    learnerIds:Object.fromEntries(session.learners.map(item => [item.id,true]))
-  };
-}
-
-async function publishActiveSession() {
-  if (!activeSession) return false;
-  await firebaseRequest(`sessions/${activeSession.id}`, {method:"PUT", body:JSON.stringify(publicSessionPayload(activeSession))});
-  activeSession.synced = true;
-  saveSession();
-  const note=document.getElementById("syncNote");
-  if(note) note.textContent="Live connection active · waiting for Apprentice+ check-ins";
-  return true;
-}
-
-async function startRegister() {
-  const group = currentClass();
-  if (!group) return;
-  const location = await getCurrentLocation();
-  activeSession = {
-    id: makeId(12), classId:group.id, className:group.name, date:new Date().toISOString().slice(0,10),
-    startedAt:new Date().toISOString(), location, radius:group.radius, lateMinutes:group.lateMinutes,
-    learners:group.learners.map(item => ({...item,status:"Unconfirmed",checkedAt:null,source:"—"})), synced:false
-  };
-  saveSession();
-  renderRegister();
-  try { await publishActiveSession(); }
-  catch (error) {
-    const note=document.getElementById("syncNote");
-    if(note) note.textContent="Session saved on this phone, but the online register could not start. Check internet and press Refresh.";
-  }
-  startPolling();
-}
-
-function setLearnerStatus(id, status, source = "Manual") {
-  const record = activeSession?.learners.find(item => item.id === id);
-  if (!record) return;
-  record.status = status;
-  if (["Present","Late"].includes(status) && !record.checkedAt) record.checkedAt = new Date().toISOString();
-  record.source = source;
-  saveSession();
-  renderRegister();
-}
-
-function determineStatus(checkedAt) {
-  const group = currentClass();
-  if (!group) return "Present";
-  const [hour, minute] = group.start.split(":").map(Number);
-  const start = new Date(checkedAt); start.setHours(hour, minute + group.lateMinutes, 0, 0);
-  return new Date(checkedAt) <= start ? "Present" : "Late";
-}
-
-function applyCheckin(payload) {
-  if (!activeSession || payload.sessionId !== activeSession.id) return false;
-  const id = cleanId(payload.learnerId);
-  const record = activeSession.learners.find(item => item.id === id);
-  if (!record) return false;
-  const checkedAt = payload.checkedAt || new Date().toISOString();
-  record.status = determineStatus(checkedAt);
-  record.checkedAt = checkedAt;
-  record.source = "Apprentice+";
-  saveSession();
-  renderRegister();
-  return true;
-}
-
-async function fetchCheckins() {
-  if (!activeSession) return;
-  try {
-    if (!activeSession.synced) await publishActiveSession();
-    const data = await firebaseRequest(`checkins/${activeSession.id}`);
-    Object.values(data || {}).forEach(applyCheckin);
-    const note=document.getElementById("syncNote");
-    if(note) note.textContent = `Live · last checked ${new Date().toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit",second:"2-digit"})}`;
-  } catch (error) {
-    const note=document.getElementById("syncNote");
-    if(note) note.textContent = "Unable to reach the live register. Manual marking still works.";
-  }
-}
-
-function startPolling() {
-  clearInterval(registerPollTimer);
-  if (activeSession) {
-    fetchCheckins();
-    registerPollTimer = setInterval(fetchCheckins, 3000);
-  }
-}
-
-async function finishRegister() {
-  if (!activeSession) return;
-  const finishedSessionId = activeSession.id;
-  activeSession.learners.forEach(item => { if (item.status === "Unconfirmed") item.status = "Absent"; });
-  activeSession.finishedAt = new Date().toISOString();
-  registerHistory.unshift(activeSession);
-  localStorage.setItem(REGISTER_HISTORY_KEY, JSON.stringify(registerHistory));
-  activeSession = null;
-  saveSession();
-  clearInterval(registerPollTimer);
-  renderRegister();
-  updateRegisterHomeStats();
-  try { await firebaseRequest(`sessions/${finishedSessionId}/active`, {method:"PUT", body:"false"}); } catch {}
-}
-
-function exportRegisterCsv() {
-  if (!activeSession) return;
-  const rows = [["Learner","Learner ID","Status","Check-in time","Source"], ...activeSession.learners.map(item => [item.name,item.id,item.status,item.checkedAt || "",item.source || ""] )];
-  const csv = rows.map(row => row.map(value => `"${String(value).replace(/"/g,'""')}"`).join(",")).join("\r\n");
-  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
-  const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `${activeSession.className}-${activeSession.date}-register.csv`; link.click(); URL.revokeObjectURL(link.href);
-}
-
-
-function showLearnerId(record) {
-  if (!record) return;
-  const dialog = document.getElementById("learnerIdDialog");
-  document.getElementById("learnerIdDialogName").textContent = record.name;
-  document.getElementById("learnerIdDialogNumber").textContent = record.id.replace(/(\d{4})(?=\d)/g, "$1 ");
-  const host = document.getElementById("learnerQrCode");
-  host.replaceChildren();
-  if (window.ApprenticeQR) host.appendChild(window.ApprenticeQR.toCanvas(record.id, 280));
-  document.getElementById("copyLearnerIdButton").onclick = async () => {
-    try { await navigator.clipboard.writeText(record.id); } catch {
-      const area=document.createElement("textarea"); area.value=record.id; document.body.appendChild(area); area.select(); document.execCommand("copy"); area.remove();
-    }
-    document.getElementById("copyLearnerIdButton").textContent = "Copied";
-  };
-  dialog.showModal();
-}
-
-learnerRegisterList.addEventListener("click", event => {
-  const shareButton = event.target.closest("[data-share-learner-id]");
-  if (shareButton) {
-    const record=(activeSession?.learners || currentClass()?.learners || []).find(item=>item.id===shareButton.dataset.shareLearnerId);
-    showLearnerId(record); return;
-  }
-  const button = event.target.closest("[data-status]");
-  if (button) setLearnerStatus(button.dataset.id, button.dataset.status);
+$('classForm').addEventListener('submit',e=>{
+  e.preventDefault();const sessions=[...document.querySelectorAll('.session-edit-row')].map(row=>({start:row.querySelector('.session-start').value,end:row.querySelector('.session-end').value})).sort((a,b)=>a.start.localeCompare(b.start));
+  if(sessions.some(s=>timeToMinutes(s.end)<=timeToMinutes(s.start)))return showToast('Every session must end after it starts');
+  if(sessions.some((s,i)=>i&&timeToMinutes(s.start)<timeToMinutes(sessions[i-1].end)))return showToast('Teaching sessions cannot overlap');
+  const id=$('editingClassId').value,c=id?getClass(id):null;
+  if(c){c.name=$('className').value.trim();c.location=$('classLocation').value.trim();c.sessions=sessions;}else state.classes.push({id:uid('class'),name:$('className').value.trim(),location:$('classLocation').value.trim(),sessions,learners:[],createdAt:new Date().toISOString()});
+  saveState();classDialog.close();renderClasses();showToast(c?'Class updated':'Class created');
 });
-document.getElementById("newClassButton").addEventListener("click", () => openClassDialog(false));
-document.getElementById("emptyNewClassButton").addEventListener("click", () => openClassDialog(false));
-document.getElementById("editClassButton").addEventListener("click", () => openClassDialog(true));
-classSelect.addEventListener("change", () => { selectedClassId = classSelect.value; renderRegister(); });
-document.getElementById("startSessionButton").addEventListener("click", startRegister);
-document.getElementById("endSessionButton").addEventListener("click", finishRegister);
-document.getElementById("refreshCheckinsButton").addEventListener("click", fetchCheckins);
-document.getElementById("copySessionButton").addEventListener("click", async () => { if (activeSession) await navigator.clipboard.writeText(activeSession.id); });
-document.getElementById("exportRegisterButton").addEventListener("click", exportRegisterCsv);
+$('learnerForm').addEventListener('submit',e=>{e.preventDefault();const c=getClass(),name=$('learnerName').value.trim();if(!c||!name)return;if(c.learners.some(l=>l.name.toLowerCase()===name.toLowerCase()))return showToast('That learner is already in this class');c.learners.push({id:uid('learner'),name});c.learners.sort((a,b)=>a.name.localeCompare(b.name));$('learnerName').value='';saveState();learnerDialog.close();renderClassDetail();showToast('Learner added');});
+$('leaveLiveButton').addEventListener('click',()=>{renderClassDetail();showPage('class-detail');});
+confirmDialog.addEventListener('close',()=>{if(confirmDialog.returnValue==='confirm'&&confirmCallback)confirmCallback();confirmCallback=null;});
+$('exportBackupButton').addEventListener('click',()=>download(`AssessorPlus-backup-${todayISO()}.json`,JSON.stringify({version:1,exportedAt:new Date().toISOString(),data:state},null,2),'application/json'));
+$('importBackupInput').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const parsed=JSON.parse(await file.text()),data=parsed.data||parsed;if(!Array.isArray(data.classes)||!Array.isArray(data.registers))throw new Error();askConfirm('Restore backup?','This will replace all classes and registers currently stored on this device.',()=>{state.classes=data.classes;state.registers=data.registers;saveState();renderClasses();showToast('Backup restored');},'Restore');}catch{showToast('That is not a valid Assessor+ backup');}e.target.value='';});
+$('clearDataButton').addEventListener('click',()=>askConfirm('Delete all data?','This permanently removes every class, learner and register stored on this device.',()=>{state.classes=[];state.registers=[];saveState();renderClasses();showToast('All local data deleted');}));
 
-const registerChannel = "BroadcastChannel" in window ? new BroadcastChannel("assessor-plus-register") : null;
-registerChannel?.addEventListener("message", event => applyCheckin(event.data || {}));
-window.addEventListener("storage", event => {
-  if (event.key === "assessorPlusIncomingCheckin" && event.newValue) {
-    try { applyCheckin(JSON.parse(event.newValue)); } catch {}
-  }
-});
-
-document.getElementById("registerSettingsRow").addEventListener("click", () => {
-  document.getElementById("attendanceEndpointInput").value = registerConnection.endpoint || "";
-  document.getElementById("organisationKeyInput").value = registerConnection.key || "";
-  registerSettingsDialog.showModal();
-});
-document.getElementById("registerSettingsForm").addEventListener("submit", event => {
-  event.preventDefault();
-  registerConnection = {endpoint:document.getElementById("attendanceEndpointInput").value.trim(), key:document.getElementById("organisationKeyInput").value};
-  localStorage.setItem(CONNECTION_STORAGE_KEY, JSON.stringify(registerConnection));
-  document.getElementById("registerConnectionStatus").textContent = "Automatic live attendance connection";
-  registerSettingsDialog.close();
-  startPolling();
-});
-document.getElementById("registerConnectionStatus").textContent = "Automatic live attendance connection";
-renderClassSelect();
-startPolling();
-
-// Future sync architecture placeholder
-const syncArchitecture={
- mode:"offline-first",
- personIdLength:16,
- dailySummaryHour:0,
- autoSync:true,
- description:"Active registers and pseudonymous learner-ID check-ins synchronise automatically between Assessor+ and Apprentice+. Learner names remain local to Assessor+."
-};
+// Install support
+const installDialog=$('installDialog'),installButton=$('installButton'),dialogInstallButton=$('dialogInstallButton');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;installButton.hidden=false;dialogInstallButton.hidden=false;});
+async function promptInstall(){if(!deferredInstallPrompt){installDialog.showModal();return;}deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;installButton.hidden=true;dialogInstallButton.hidden=true;}
+installButton.onclick=promptInstall;$('installRow').onclick=promptInstall;dialogInstallButton.onclick=promptInstall;
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
+renderHome();renderClasses();showPage('home');

@@ -1,11 +1,11 @@
 {
   "name": "Assessor+",
   "short_name": "Assessor+",
-  "description": "Teaching, assessment and attendance workspace for tutors and assessors.",
-  "start_url": "./index.html#dashboard",
+  "description": "Simple offline class registers with timed attendance.",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f3ff",
+  "background_color": "#f7f5fa",
   "theme_color": "#6d28d9",
   "orientation": "portrait-primary",
   "icons": [

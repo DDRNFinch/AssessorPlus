@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#6d28d9">
-  <meta name="description" content="Assessor+ — a personalised workspace for education teams.">
+  <meta name="description" content="Assessor+ standalone class registers.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Assessor+">
@@ -19,221 +19,101 @@
     <header class="topbar">
       <div class="brand">
         <img class="brand-mark" src="./assessor-logo.png" alt="Assessor+ logo">
-        <div>
-          <h1>Assessor+</h1>
-          <p id="roleSubtitle">Personalised education workspace</p>
-        </div>
+        <div><h1>Assessor+</h1><p>Simple offline registers</p></div>
       </div>
-      <button id="installButton" class="icon-button" type="button" aria-label="Install Assessor+" hidden>Install</button>
+      <button id="installButton" class="small-button" type="button" hidden>Install</button>
     </header>
 
-    <main id="appContent" class="content" tabindex="-1">
+    <main id="appContent" class="content">
       <section class="page active" data-page="home">
-        <div class="welcome-card">
-          <p class="eyebrow">ASSESSOR+ V0.8</p>
-          <h2 id="dashboardGreeting">Welcome</h2>
-          <p id="dashboardIntro">Your personalised workspace is ready.</p>
+        <div class="hero-card">
+          <p class="eyebrow">ASSESSOR+ V1.1</p>
+          <h2>Class registers, kept simple</h2>
+          <p>Create a class, add learner names, set teaching sessions and tick learners as they arrive.</p>
+          <button class="primary-button" type="button" data-go="registers">Open registers</button>
         </div>
-
-        <div class="section-heading home-section-heading">
-          <h3 id="homeStatisticsTitle">Department overview</h3>
-          <p id="homeStatisticsIntro">Statistics from your dashboard will appear here.</p>
+        <div class="stats-grid">
+          <article><span>Classes</span><strong id="statClasses">0</strong></article>
+          <article><span>Learners</span><strong id="statLearners">0</strong></article>
+          <article><span>Registers</span><strong id="statRegisters">0</strong></article>
+          <article><span>Today present</span><strong id="statPresent">0</strong></article>
         </div>
-
-        <div class="statistics-grid" id="homeStatistics" aria-live="polite"></div>
-
-        <div class="dashboard-panel home-note-panel">
-          <div class="dashboard-panel-icon">+</div>
-          <div>
-            <h3 id="homePanelTitle">Your department at a glance</h3>
-            <p id="workspaceMessage">As dashboard areas are added, their live totals and alerts will be summarised here.</p>
-          </div>
+        <div class="info-card">
+          <h3>How attendance time works</h3>
+          <p>Each class contains one or more teaching sessions. When you tick a learner, Assessor+ records the exact time. Their credited time runs from that tick time to the end of the session. Gaps between sessions are treated as breaks and are not counted.</p>
         </div>
       </section>
-
-      <section class="page" data-page="dashboard">
-        <div class="page-title">
-          <div>
-            <p class="eyebrow">PERSONALISED WORKSPACE</p>
-            <h2 id="departmentPageTitle">Dashboard</h2>
-          </div>
-        </div>
-        <div class="basic-page department-dashboard">
-          <div class="department-dashboard-header">
-            <div class="department-icon" aria-hidden="true">A+</div>
-            <div>
-              <h3 id="departmentHeading">Choose a department</h3>
-              <p id="departmentDescription">Your personalised dashboard tools will be built here.</p>
-            </div>
-          </div>
-          <div class="dashboard-area-grid" id="dashboardAreas"></div>
-        </div>
-      </section>
-
 
       <section class="page" data-page="registers">
-        <div class="page-title register-title-row">
-          <div><p class="eyebrow">AUTOMATIC ATTENDANCE</p><h2>Registers</h2></div>
-          <button id="newClassButton" class="primary-button compact-button" type="button">+ New class</button>
+        <div class="page-heading">
+          <div><p class="eyebrow">OFFLINE REGISTER</p><h2>Registers</h2></div>
+          <button id="newClassButton" class="primary-button compact" type="button">+ New class</button>
         </div>
-
-        <div id="registerEmpty" class="basic-page empty-state-card">
-          <div class="department-icon">R</div>
-          <h3>Create your first class</h3>
-          <p>Add learners once, then start a session. Apprentice+ will check learners in using their saved 16-digit ID and verified location.</p>
-          <button id="emptyNewClassButton" class="primary-button" type="button">Create class</button>
+        <div id="classesEmpty" class="empty-state">
+          <div class="empty-icon">✓</div><h3>No classes yet</h3><p>Create your first class, add learner names and set the daily sessions.</p>
+          <button class="primary-button" type="button" data-new-class>Create class</button>
         </div>
-
-        <div id="registerWorkspace" hidden>
-          <div class="register-toolbar">
-            <label class="field-label">Class
-              <select id="classSelect"></select>
-            </label>
-            <button id="editClassButton" class="secondary-button compact-button" type="button">Edit</button>
-          </div>
-
-          <div class="session-card">
-            <div>
-              <p class="eyebrow">TODAY'S SESSION</p>
-              <h3 id="sessionClassName">Class register</h3>
-              <p id="sessionSummary">Start a register when learners arrive.</p>
-            </div>
-            <button id="startSessionButton" class="primary-button" type="button">Start register</button>
-          </div>
-
-          <div id="activeSessionPanel" class="active-session-panel" hidden>
-            <div class="live-status-row">
-              <span class="live-dot"></span>
-              <div><strong>Register live</strong><small id="activeSessionInfo"></small></div>
-              <button id="endSessionButton" class="danger-button compact-button" type="button">Finish</button>
-            </div>
-            <div class="register-stats" id="registerStats"></div>
-            <div class="register-actions">
-              <button id="refreshCheckinsButton" class="secondary-button compact-button" type="button">Refresh</button>
-              <button id="copySessionButton" class="secondary-button compact-button" type="button">Copy session ID</button>
-              <button id="exportRegisterButton" class="secondary-button compact-button" type="button">Export CSV</button>
-            </div>
-            <p class="sync-note" id="syncNote">Waiting for Apprentice+ check-ins. Manual changes remain available.</p>
-          </div>
-
-          <div class="learner-register-list" id="learnerRegisterList"></div>
-        </div>
+        <div id="classList" class="card-list"></div>
       </section>
 
       <section class="page" data-page="tools">
-        <div class="page-title"><div><p class="eyebrow">APP MANAGEMENT</p><h2>Tools</h2></div></div>
+        <div class="page-heading"><div><p class="eyebrow">APP MANAGEMENT</p><h2>Toolbox</h2></div></div>
         <div class="list-card">
-          <button type="button" class="list-row" id="changeDepartment">
-            <span><strong>Change department</strong><small id="currentDepartmentText">Select your Assessor+ workspace</small></span>
-            <span aria-hidden="true">›</span>
-          </button>
-          <button type="button" class="list-row" id="installRow">
-            <span><strong>Install Assessor+</strong><small>Add the app to this device</small></span>
-            <span aria-hidden="true">›</span>
-          </button>
-          <button type="button" class="list-row" id="registerSettingsRow" hidden>
-            <span><strong>Register connection</strong><small id="registerConnectionStatus">Local mode — ready for Apprentice+ setup</small></span>
-            <span aria-hidden="true">›</span>
-          </button>
-          <button type="button" class="list-row" disabled>
-            <span><strong>Profile and organisation</strong><small>Personal and workplace settings</small></span>
-            <span class="status-pill">Soon</span>
-          </button>
-          <button type="button" class="list-row" disabled>
-            <span><strong>Backup and export</strong><small>App data, PDF and CSV exports</small></span>
-            <span class="status-pill">Soon</span>
-          </button>
+          <button id="exportBackupButton" class="list-row" type="button"><span><strong>Export backup</strong><small>Download all classes and registers</small></span><span>›</span></button>
+          <label class="list-row file-row"><span><strong>Import backup</strong><small>Restore an Assessor+ backup file</small></span><span>›</span><input id="importBackupInput" type="file" accept="application/json,.json"></label>
+          <button id="clearDataButton" class="list-row danger" type="button"><span><strong>Delete all local data</strong><small>Remove every class and register from this device</small></span><span>›</span></button>
+          <button id="installRow" class="list-row" type="button"><span><strong>Install Assessor+</strong><small>Add it to this device</small></span><span>›</span></button>
         </div>
+      </section>
+
+      <section class="page" data-page="class-detail">
+        <button class="back-button" type="button" data-back="registers">‹ Registers</button>
+        <div id="classDetail"></div>
+      </section>
+
+      <section class="page" data-page="live-register">
+        <button class="back-button" type="button" id="leaveLiveButton">‹ Class</button>
+        <div id="liveRegister"></div>
       </section>
     </main>
 
     <nav class="bottom-nav" aria-label="Main navigation">
       <button class="nav-item active" data-page-target="home"><span>⌂</span><small>Home</small></button>
-      <button class="nav-item" data-page-target="dashboard"><span>◆</span><small id="dashboardNavLabel">Dashboard</small></button>
+      <button class="nav-item" data-page-target="registers"><span>✓</span><small>Registers</small></button>
       <button class="nav-item" data-page-target="tools"><span>▦</span><small>Toolbox</small></button>
     </nav>
   </div>
 
-  <dialog id="departmentDialog" class="department-dialog">
-    <form method="dialog" class="department-card">
-      <img class="setup-logo" src="./assessor-logo.png" alt="Assessor+ logo">
-      <p class="eyebrow">PERSONALISE ASSESSOR+</p>
-      <h2>Choose your department</h2>
-      <p>Select the workspace that best matches how you will use the app. You can change this later in Tools.</p>
-      <div class="department-options" id="departmentOptions">
-        <button type="button" data-department="Tutor"><strong>Tutor</strong><small>Teaching, classes and learner support</small></button>
-        <button type="button" data-department="Assessor"><strong>Assessor</strong><small>Assessment, evidence and progress reviews</small></button>
-        <button type="button" data-department="Employer"><strong>Employer</strong><small>Workplace progress and attendance</small></button>
-        <button type="button" data-department="Management"><strong>Management</strong><small>Oversight, performance and reporting</small></button>
-        <button type="button" data-department="Administration"><strong>Administration</strong><small>Records, coordination and compliance</small></button>
-        <button type="button" data-department="Other"><strong>Other</strong><small>Start with a general workspace</small></button>
-      </div>
-      <button id="closeDepartmentDialog" class="secondary-button full-width" value="cancel" hidden>Cancel</button>
-    </form>
-  </dialog>
-
   <dialog id="classDialog">
-    <form method="dialog" class="dialog-card form-dialog" id="classForm">
-      <h2 id="classDialogTitle">Create class</h2>
-      <input id="classRecordId" type="hidden">
-      <label>Class name<input id="classNameInput" required maxlength="80" placeholder="Bricklaying Level 2"></label>
-      <div class="form-grid">
-        <label>Start time<input id="classStartInput" type="time" value="09:00" required></label>
-        <label>End time<input id="classEndInput" type="time" value="16:00" required></label>
-      </div>
-      <div class="form-grid">
-        <label>Late after (minutes)<input id="lateMinutesInput" type="number" min="0" max="120" value="5" required></label>
-        <label>Location radius (metres)<input id="radiusInput" type="number" min="20" max="2000" value="150" required></label>
-      </div>
-      <label>Learners <small>One learner name per line. Assessor+ generates the 16-digit ID automatically.</small><textarea id="classLearnersInput" rows="7" placeholder="Joe Bloggs
-Amy Smith"></textarea></label>
-      <div class="dialog-actions">
-        <button value="cancel" class="secondary-button">Cancel</button>
-        <button class="primary-button" type="submit">Save class</button>
-      </div>
+    <form id="classForm" class="dialog-card">
+      <div class="dialog-header"><div><p class="eyebrow">CLASS SETUP</p><h2 id="classDialogTitle">Create class</h2></div><button class="close-button" type="button" data-close-dialog>×</button></div>
+      <input id="editingClassId" type="hidden">
+      <label>Class name<input id="className" required maxlength="80" placeholder="Bricklaying Tuesday"></label>
+      <label>Room or location<input id="classLocation" maxlength="80" placeholder="Workshop 2"></label>
+      <div class="section-title-row"><div><h3>Teaching sessions</h3><p>Breaks are the gaps between these sessions.</p></div><button id="addSessionRow" class="secondary-button compact" type="button">+ Session</button></div>
+      <div id="sessionRows" class="session-editor"></div>
+      <div class="dialog-actions"><button class="secondary-button" type="button" data-close-dialog>Cancel</button><button class="primary-button" type="submit">Save class</button></div>
     </form>
   </dialog>
 
-
-  <dialog id="learnerIdDialog">
-    <form method="dialog" class="dialog-card learner-id-dialog">
-      <p class="eyebrow">LEARNER ID</p>
-      <h2 id="learnerIdDialogName">Learner</h2>
-      <p>Only the 16-digit number is stored in this QR code. No name or personal details are included.</p>
-      <div id="learnerQrCode" class="learner-qr-code" aria-label="Learner ID QR code"></div>
-      <strong id="learnerIdDialogNumber" class="learner-id-number"></strong>
-      <div class="dialog-actions">
-        <button value="cancel" class="secondary-button">Close</button>
-        <button id="copyLearnerIdButton" type="button" class="primary-button">Copy ID</button>
-      </div>
+  <dialog id="learnerDialog">
+    <form id="learnerForm" class="dialog-card small-dialog">
+      <div class="dialog-header"><div><p class="eyebrow">CLASS LIST</p><h2>Add learner</h2></div><button class="close-button" type="button" data-close-dialog>×</button></div>
+      <label>Learner name<input id="learnerName" required maxlength="100" autocomplete="off" placeholder="Joe Bloggs"></label>
+      <div class="dialog-actions"><button class="secondary-button" type="button" data-close-dialog>Cancel</button><button class="primary-button" type="submit">Add learner</button></div>
     </form>
   </dialog>
 
-  <dialog id="registerSettingsDialog">
-    <form method="dialog" class="dialog-card form-dialog" id="registerSettingsForm">
-      <h2>Register connection</h2>
-      <p>Assessor+ works locally now. When the shared attendance service is connected, paste its secure endpoint here.</p>
-      <label>Attendance service URL<input id="attendanceEndpointInput" type="url" placeholder="https://your-service.example/api"></label>
-      <label>Organisation key<input id="organisationKeyInput" type="password" autocomplete="off" placeholder="Optional secure key"></label>
-      <div class="dialog-actions">
-        <button value="cancel" class="secondary-button">Cancel</button>
-        <button class="primary-button" type="submit">Save connection</button>
-      </div>
+  <dialog id="confirmDialog">
+    <form method="dialog" class="dialog-card small-dialog">
+      <h2 id="confirmTitle">Confirm</h2><p id="confirmMessage"></p>
+      <div class="dialog-actions"><button value="cancel" class="secondary-button">Cancel</button><button id="confirmAction" value="confirm" class="danger-button">Delete</button></div>
     </form>
   </dialog>
 
-  <dialog id="installDialog">
-    <form method="dialog" class="dialog-card">
-      <h2>Install Assessor+</h2>
-      <p id="installMessage">Use your browser menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>
-      <div class="dialog-actions">
-        <button value="cancel" class="secondary-button">Close</button>
-        <button id="dialogInstallButton" value="default" class="primary-button" type="button" hidden>Install</button>
-      </div>
-    </form>
-  </dialog>
+  <dialog id="installDialog"><form method="dialog" class="dialog-card small-dialog"><h2>Install Assessor+</h2><p id="installMessage">Use your browser menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p><div class="dialog-actions"><button value="cancel" class="secondary-button">Close</button><button id="dialogInstallButton" type="button" class="primary-button" hidden>Install</button></div></form></dialog>
 
-  <script src="./qrcode-browser.js"></script>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

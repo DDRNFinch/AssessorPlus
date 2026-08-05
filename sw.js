@@ -1,29 +1,5 @@
-const CACHE_NAME = "assessor-plus-v1.0";
-const APP_SHELL = [
-  "./",
-  "./index.html",
-  "./main.css",
-  "./app.js",
-  "./qrcode-browser.js",
-  "./manifest.webmanifest",
-  "./icon-192.png",
-  "./icon-512.png",
-  "./assessor-logo.png"
-];
-
-self.addEventListener("install", event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
-});
-
-self.addEventListener("activate", event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
-});
-
-self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return;
-  event.respondWith(fetch(event.request).then(response => {
-    const copy = response.clone();
-    caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-    return response;
-  }).catch(() => caches.match(event.request).then(match => match || caches.match("./index.html"))));
-});
+const CACHE='assessor-plus-v1.1-simple-registers';
+const ASSETS=['./','./index.html','./main.css','./app.js','./manifest.webmanifest','./assessor-logo.png','./icon-192.png','./icon-512.png','./.nojekyll'];
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',event=>{if(event.request.method!=='GET')return;event.respondWith(fetch(event.request).then(response=>{const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy));return response;}).catch(()=>caches.match(event.request).then(r=>r||caches.match('./index.html'))));});
