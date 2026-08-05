@@ -27,7 +27,7 @@
     <main id="appContent" class="content">
       <section class="page active" data-page="home">
         <div class="hero-card">
-          <p class="eyebrow">ASSESSOR+ V1.3</p>
+          <p class="eyebrow">ASSESSOR+ V1.4</p>
           <h2>Class registers, kept simple</h2>
           <p>Create a class, add learner names, set teaching sessions and tick learners as they arrive.</p>
           <button class="primary-button" type="button" data-go="registers">Open registers</button>
@@ -40,7 +40,7 @@
         </div>
         <div class="info-card">
           <h3>How attendance time works</h3>
-          <p>Each class contains one or more teaching sessions. When you tick a learner, Assessor+ records the exact time. Their credited time runs from that tick time to the end of the session. Gaps between sessions are treated as breaks and are not counted.</p>
+          <p>Each class contains one or more teaching sessions. When you tick a learner, Assessor+ records the exact time. Minutes gained by arriving before a session are added to the learner’s minute bank. Banked minutes can cover future lateness while the actual late arrival remains recorded. Absence is never covered. Gaps between sessions are treated as breaks and are not counted.</p>
         </div>
       </section>
 
@@ -76,6 +76,11 @@
           <button id="clearDataButton" class="list-row danger" type="button"><span><strong>Delete all local data</strong><small>Remove every class and register from this device</small></span><span>›</span></button>
           <button id="installRow" class="list-row" type="button"><span><strong>Install Assessor+</strong><small>Add it to this device</small></span><span>›</span></button>
         </div>
+      </section>
+
+      <section class="page" data-page="learner-profile">
+        <button class="back-button" type="button" data-back="learners">‹ Learners</button>
+        <div id="learnerProfile"></div>
       </section>
 
       <section class="page" data-page="class-detail">
