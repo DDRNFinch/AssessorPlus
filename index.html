@@ -135,6 +135,13 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 .card,.row,.compact-register-row,.register-link-row{box-shadow:none}
 @media(max-width:800px){.nav{display:grid;overflow:visible;padding-top:5px}.nav button{min-width:0}.nav-label{font-size:10px}}
 
+
+.log-tabs{display:flex;gap:6px;margin:0 0 12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.log-tab{border:0;background:transparent;color:var(--muted);font-weight:800;padding:8px 12px;border-radius:8px;cursor:pointer}
+.log-tab.active{background:#ede9fe;color:#5b21b6}
+.log-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.sent-status{font-size:12px;font-weight:800;color:#5b21b6}
+.unsent-status{font-size:12px;font-weight:800;color:#9a3412}
 </style>
 </head>
 <body>
@@ -170,7 +177,16 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
   </div>
   <div id="registerLogsView" style="display:none">
     <div class="page-head"><button class="btn light" onclick="closeRegisterSection()">Back</button></div>
-    <div class="section-head"><h2>Register logs</h2></div><div id="logList" class="list"></div>
+    <div class="section-head"><h2>Register logs</h2></div>
+    <div class="log-tabs" role="tablist" aria-label="Register log views">
+      <button id="unsentLogTab" class="log-tab active" type="button" onclick="setLogTab('unsent')">Unsent logs</button>
+      <button id="allLogTab" class="log-tab" type="button" onclick="setLogTab('all')">All logs</button>
+    </div>
+    <div class="log-toolbar">
+      <div id="logTabSummary" class="muted"></div>
+      <button id="exportUnsentBtn" class="btn primary" type="button" onclick="exportUnsentRegisterPack()">Export unsent logs</button>
+    </div>
+    <div id="logList" class="list"></div>
   </div>
 </div>
 </section>
@@ -187,7 +203,7 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 <script>
 const KEY='assessorplus_timed_demo_v1';
 const $=id=>document.getElementById(id); const uid=p=>p+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let state=JSON.parse(localStorage.getItem(KEY)||'null')||{learners:[],classes:[],logs:[],live:null,demoTime:null}; state.learners.forEach(l=>{if(!Array.isArray(l.holidays))l.holidays=[];if(!Number.isFinite(Number(l.bankAdjustment)))l.bankAdjustment=0}); state.classes.forEach(c=>{if(!Array.isArray(c.holidays))c.holidays=[];if(c.weekday===undefined||c.weekday===null){let names=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];let found=names.findIndex(n=>(c.name||'').toLowerCase().includes(n.toLowerCase()));c.weekday=found>=0?found:new Date().getDay()}}); state.logs.forEach((log,i)=>{if(!log.id)log.id=uid('reglog')+'_'+i}); if(state.live){if(!state.live.present)state.live.present={};if(!state.live.events)state.live.events={};state.live.learnerIds.forEach(id=>{if(!Array.isArray(state.live.events[id]))state.live.events[id]=[];if(typeof state.live.present[id]!=='boolean')state.live.present[id]=false})} localStorage.setItem(KEY,JSON.stringify(state)); let editingLearner=null,editingClass=null,tempPeriods=[],tempSessions=[],tempHolidays=[],tempClassHolidays=[],editingLogId=null;
+let state=JSON.parse(localStorage.getItem(KEY)||'null')||{learners:[],classes:[],logs:[],live:null,demoTime:null}; state.learners.forEach(l=>{if(!Array.isArray(l.holidays))l.holidays=[];if(!Number.isFinite(Number(l.bankAdjustment)))l.bankAdjustment=0}); state.classes.forEach(c=>{if(!Array.isArray(c.holidays))c.holidays=[];if(c.weekday===undefined||c.weekday===null){let names=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];let found=names.findIndex(n=>(c.name||'').toLowerCase().includes(n.toLowerCase()));c.weekday=found>=0?found:new Date().getDay()}}); state.logs.forEach((log,i)=>{if(!log.id)log.id=uid('reglog')+'_'+i;if(log.sentAt===undefined)log.sentAt=null}); if(state.live){if(!state.live.present)state.live.present={};if(!state.live.events)state.live.events={};state.live.learnerIds.forEach(id=>{if(!Array.isArray(state.live.events[id]))state.live.events[id]=[];if(typeof state.live.present[id]!=='boolean')state.live.present[id]=false})} localStorage.setItem(KEY,JSON.stringify(state)); let editingLearner=null,editingClass=null,tempPeriods=[],tempSessions=[],tempHolidays=[],tempClassHolidays=[],editingLogId=null,currentLogTab='unsent';
 function save(){localStorage.setItem(KEY,JSON.stringify(state));renderAll()}
 function openM(id){$(id).classList.add('open')} function closeM(id){$(id).classList.remove('open')}
 function dateISO(d=new Date()){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
@@ -341,12 +357,81 @@ function deleteRegisterById(id){
   localStorage.setItem(KEY,JSON.stringify(state));
   renderAll();
 }
+function setLogTab(tab){
+  currentLogTab=tab==='all'?'all':'unsent';
+  renderLogs();
+}
+function registerPackPayload(logs){
+  return {
+    format:'AssessorPlus Register Pack',
+    version:1,
+    exportedAt:new Date().toISOString(),
+    registerCount:logs.length,
+    registers:logs.map(log=>({
+      id:log.id,
+      classId:log.classId||null,
+      className:log.className,
+      date:log.date,
+      periods:log.periods,
+      plannedMinutes:log.plannedMinutes,
+      completedAt:log.completedAt,
+      autoCompleted:!!log.autoCompleted,
+      editedAt:log.editedAt||null,
+      learners:(log.results||[]).map(r=>({
+        learnerId:r.learnerId,
+        learnerName:learnerName(r.learnerId),
+        holiday:!!r.holiday,
+        creditedMinutes:r.creditedMinutes,
+        netMinutes:r.netMinutes,
+        attendedSessions:r.attendedSessions,
+        totalSessions:r.totalSessions,
+        details:r.details||[]
+      }))
+    }))
+  };
+}
+function safePackDate(d){return String(d||'').replace(/[^0-9-]/g,'')}
+async function exportUnsentRegisterPack(){
+  const logs=state.logs.filter(log=>!log.sentAt);
+  if(!logs.length){alert('There are no unsent register logs.');return;}
+  const dates=logs.map(x=>x.date).filter(Boolean).sort();
+  const first=safePackDate(dates[0]||new Date().toISOString().slice(0,10));
+  const last=safePackDate(dates[dates.length-1]||first);
+  const filename=`AssessorPlus-Registers-${first}-to-${last}.apreg`;
+  const blob=new Blob([JSON.stringify(registerPackPayload(logs),null,2)],{type:'application/json'});
+  let shared=false;
+  try{
+    const file=new File([blob],filename,{type:'application/json'});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({title:'Assessor+ Register Pack',text:`${logs.length} completed register${logs.length===1?'':'s'}`,files:[file]});
+      shared=true;
+    }
+  }catch(err){
+    if(err&&err.name==='AbortError')return;
+  }
+  if(!shared){
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  const sentAt=new Date().toISOString();
+  logs.forEach(log=>log.sentAt=sentAt);
+  save();
+  currentLogTab='all';
+  renderLogs();
+}
 function renderLogs(){
   const el=$('logList');
-  if(!state.logs.length){el.innerHTML='<div class="empty">No completed register logs yet.</div>';return;}
-  el.innerHTML=state.logs.map((log,index)=>`<div class="card register-log-card">
+  const unsent=state.logs.filter(log=>!log.sentAt);
+  const visible=currentLogTab==='all'?state.logs:unsent;
+  $('unsentLogTab')?.classList.toggle('active',currentLogTab==='unsent');
+  $('allLogTab')?.classList.toggle('active',currentLogTab==='all');
+  if($('logTabSummary'))$('logTabSummary').textContent=currentLogTab==='unsent'?`${unsent.length} unsent completed register${unsent.length===1?'':'s'}`:`${state.logs.length} completed register${state.logs.length===1?'':'s'}`;
+  if($('exportUnsentBtn'))$('exportUnsentBtn').style.display=unsent.length?'inline-flex':'none';
+  if(!visible.length){el.innerHTML=`<div class="empty">${currentLogTab==='unsent'?'No unsent register logs.':'No completed register logs yet.'}</div>`;return;}
+  el.innerHTML=visible.map((log,index)=>`<div class="card register-log-card">
     <div class="row" style="border:0;padding:0">
-      <div><div class="row-title">${esc(log.className)}</div><div class="row-meta">${dateFmt(log.date)} · ${minText(log.plannedMinutes)} planned learning · ${log.autoCompleted?'Automatically completed':'Manually completed'}</div></div>
+      <div><div class="row-title">${esc(log.className)}</div><div class="row-meta">${dateFmt(log.date)} · ${minText(log.plannedMinutes)} planned learning · ${log.autoCompleted?'Automatically completed':'Manually completed'}</div><div class="${log.sentAt?'sent-status':'unsent-status'}">${log.sentAt?`Sent ${new Date(log.sentAt).toLocaleDateString('en-GB')}`:'Unsent'}</div></div>
       <div class="log-head-actions">
         <button type="button" class="btn small dark" onclick="toggleLog('${esc(log.id)}')">View</button>
         <button type="button" class="btn small light" onclick="openEditLog('${esc(log.id)}')">Edit learners</button>
