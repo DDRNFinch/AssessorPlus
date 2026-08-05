@@ -218,6 +218,68 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 #reviewEditorModal .modal{padding:0;overflow:hidden}#reviewEditorModal .modal>h2{margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:17px}#reviewEditorBody{padding:12px 14px;max-height:72vh;overflow:auto}#reviewEditorModal .modal-foot{margin:0;padding:10px 14px;border-top:1px solid var(--line);background:#fff}
 #reviewImportModal .modal,#reviewScanModal .modal,#reviewAttachModal .modal,#reviewShareModal .modal{border-radius:14px}
 @media(max-width:760px){.review-commandbar{align-items:flex-start;flex-direction:column}.review-commandbar .review-inline-actions{width:100%}.review-commandbar .btn{flex:1}.review-kpi-grid{grid-template-columns:repeat(2,1fr)}.review-kpi:nth-child(3n){border-right:1px solid var(--line)}.review-kpi:nth-child(2n){border-right:0}.review-kpi:nth-last-child(-n+3){border-bottom:1px solid var(--line)}.review-kpi:nth-last-child(-n+2){border-bottom:0}.review-tabs{overflow-x:auto}.review-tabs button{white-space:nowrap;min-width:max-content}.review-target{grid-template-columns:26px 1fr}.review-target input[type=date]{grid-column:2}.snapshot-item:nth-child(n){border-right:0}.snapshot-item:not(:last-child){border-bottom:1px solid var(--line)}}
+
+/* V4.0 professional review workspace */
+#reviewEditorModal .modal{max-width:1120px!important;width:min(1120px,calc(100vw - 24px));background:#f6f5f8}
+#reviewEditorModal .modal>h2{background:#fff;padding:16px 18px;font-size:18px;letter-spacing:-.01em}
+#reviewEditorBody{padding:14px 16px 20px;max-height:76vh}
+#reviewEditorModal .modal-foot{position:sticky;bottom:0;z-index:4;box-shadow:0 -8px 24px rgba(31,24,45,.06)}
+.review-editor-layout.review-polished{grid-template-columns:minmax(0,1.45fr) minmax(300px,.75fr);align-items:start;gap:12px}
+.review-polished .review-hero{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,.5fr);padding:0;background:#fff;border:1px solid var(--line);overflow:hidden}
+.review-polished .review-hero>div:first-child{padding:17px 18px}
+.review-polished .review-hero>div:first-child>p{font-size:13px}
+.review-polished .review-progress-card{border:0;border-left:1px solid var(--line);border-radius:0;padding:17px 18px;background:#faf9fc}
+.review-polished .review-progress-card h3{font-size:14px;margin:12px 0 4px}
+.review-polished .review-progress-card p{font-size:12px;color:var(--muted);margin:5px 0 0}
+.review-polished .review-kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin-top:14px!important;border:1px solid var(--line);border-radius:9px;background:#fff}
+.review-polished .review-kpi{min-width:0;padding:9px 10px;border-right:1px solid var(--line);border-bottom:0}
+.review-polished .review-kpi:last-child{border-right:0}
+.review-polished .review-kpi span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.review-polished .review-kpi strong{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.review-polished .review-section{margin:0;border-radius:10px;background:#fff;box-shadow:0 1px 2px rgba(31,24,45,.03)}
+.review-polished .review-section.review-wide{grid-column:1/-1}
+.review-polished .review-section.review-primary{grid-column:1}
+.review-polished .review-section.review-side{grid-column:2}
+.review-polished .review-section>h3{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:#fff;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer;user-select:none}
+.review-polished .review-section>h3::after{content:'−';display:grid;place-items:center;width:22px;height:22px;border-radius:7px;background:#f2eff8;color:#5b21b6;font-size:15px;line-height:1}
+.review-polished .review-section.is-collapsed>h3{border-bottom:0}
+.review-polished .review-section.is-collapsed>h3::after{content:'+'}
+.review-polished .review-section-body{display:block}
+.review-polished .review-section.is-collapsed .review-section-body{display:none}
+.review-polished .review-field{grid-template-columns:165px minmax(0,1fr);padding:9px 13px;gap:10px}
+.review-polished .review-field>label{font-size:12px;color:#4b4653;margin-top:7px}
+.review-polished .review-field input,.review-polished .review-field select,.review-polished .review-field textarea{border-color:#d9d5df;background:#fff;border-radius:8px;font-size:13px;padding:9px 10px}
+.review-polished .review-field textarea{min-height:72px}
+.review-polished .review-target{grid-template-columns:26px minmax(0,1fr) 132px;padding:8px 12px;background:#fff}
+.review-polished .review-target-num{width:22px;height:22px;font-size:11px}
+.review-polished .review-target input{height:36px;padding:7px 9px;border-radius:8px}
+.review-polished .signature-grid{padding:12px;gap:8px}
+.review-polished .signature-card{padding:9px;border-radius:9px;background:#fcfbfd}
+.review-polished .signature-pad{height:92px;background:#fff}
+.review-polished .snapshot-preview{border:0;border-radius:0;padding:0;background:#fff}
+.review-polished .snapshot-grid{border:0;border-radius:0}
+.review-polished .snapshot-item{padding:9px 12px}
+.review-polished .rag-readonly{padding:5px 9px;font-size:12px}
+.review-section-kicker{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:2px}
+@media(max-width:900px){
+ #reviewEditorModal .modal{width:calc(100vw - 12px)}
+ .review-editor-layout.review-polished{grid-template-columns:1fr}
+ .review-polished .review-hero{grid-template-columns:1fr}
+ .review-polished .review-progress-card{border-left:0;border-top:1px solid var(--line)}
+ .review-polished .review-kpi-grid{grid-template-columns:repeat(3,1fr)}
+ .review-polished .review-kpi:nth-child(3){border-right:0}.review-polished .review-kpi:nth-child(-n+3){border-bottom:1px solid var(--line)}
+ .review-polished .review-section.review-wide,.review-polished .review-section.review-primary,.review-polished .review-section.review-side{grid-column:1}
+}
+@media(max-width:620px){
+ #reviewEditorBody{padding:9px 8px 15px}
+ .review-polished .review-hero>div:first-child,.review-polished .review-progress-card{padding:13px}
+ .review-polished .review-kpi-grid{grid-template-columns:repeat(2,1fr)}
+ .review-polished .review-kpi:nth-child(n){border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+ .review-polished .review-kpi:nth-child(2n){border-right:0}.review-polished .review-kpi:nth-last-child(-n+2){border-bottom:0}
+ .review-polished .review-field{grid-template-columns:1fr;gap:5px}.review-polished .review-field>label{margin:0}
+ .review-polished .review-target{grid-template-columns:24px 1fr}.review-polished .review-target input[type=date]{grid-column:2}
+}
+
 </style>
 </head>
 <body>
@@ -270,7 +332,7 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 <div class="page-head"><h1>Reviews</h1><div class="actions" id="assessmentHeaderActions"></div></div>
 <div id="assessmentContent"></div>
 </section>
-<section id="settings" class="page"><div class="page-head"><h1>Settings</h1></div><div class="settings-grid"><div class="card"><h3>Assessor+ version</h3><div class="version-line"><strong id="appVersion">V3.9</strong><span id="updateStatus" class="muted">Checking for updates…</span></div><p class="muted">Updates are checked automatically whenever Assessor+ opens. When a new version is ready, you will see what has changed before installing it.</p><button id="checkUpdateBtn" class="btn light" type="button">Check for updates</button></div><div class="card"><h3>Time controls</h3><p class="muted">Every time and duration selector moves in 5-minute increments. Learner time banks are calculated from the first arrival in each teaching session.</p></div><div class="card"><h3>App data</h3><p class="muted">Learners, classes and registers are saved in this browser.</p><button class="btn danger" onclick="if(confirm('Clear all app data?')){localStorage.removeItem(KEY);location.reload()}">Clear app data</button></div></div></section>
+<section id="settings" class="page"><div class="page-head"><h1>Settings</h1></div><div class="settings-grid"><div class="card"><h3>Assessor+ version</h3><div class="version-line"><strong id="appVersion">V4.0</strong><span id="updateStatus" class="muted">Checking for updates…</span></div><p class="muted">Updates are checked automatically whenever Assessor+ opens. When a new version is ready, you will see what has changed before installing it.</p><button id="checkUpdateBtn" class="btn light" type="button">Check for updates</button></div><div class="card"><h3>Time controls</h3><p class="muted">Every time and duration selector moves in 5-minute increments. Learner time banks are calculated from the first arrival in each teaching session.</p></div><div class="card"><h3>App data</h3><p class="muted">Learners, classes and registers are saved in this browser.</p><button class="btn danger" onclick="if(confirm('Clear all app data?')){localStorage.removeItem(KEY);location.reload()}">Clear app data</button></div></div></section>
 </main></div>
 
 <div class="modal-wrap" id="learnerExportModal"><div class="modal" style="max-width:560px"><h2>Export selected learners</h2><p class="muted" id="learnerExportSummary"></p><div class="export-format-list"><button class="export-format-row" type="button" onclick="exportSelectedLearners('pdf')"><strong>PDF attendance report</strong><span>Easy-to-read learner summaries and complete register history.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLearners('csv')"><strong>CSV summary</strong><span>One clear overall summary row per learner for Excel.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLearners('zip')"><strong>ZIP pack</strong><span>Contains the PDF, CSV and learner transfer pack together.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLearners('aplearner')"><strong>Assessor+ learner pack</strong><span>Packaged learner data for importing into a compatible Assessor+ or Apprentice+ app.</span></button></div><div class="modal-foot"><button class="btn light" type="button" onclick="closeM('learnerExportModal')">Cancel</button></div></div></div>
@@ -925,6 +987,35 @@ function saveReceivedSnapshot(){if(!pendingReviewSnapshot)return;state.reviewSna
 function openAttachSnapshot(id){const s=state.reviewSnapshots.find(x=>x.transferId===id);if(!s)return;pendingReviewSnapshot=s;$('reviewAttachPreview').innerHTML=snapshotHtml(s);$('reviewAttachLearner').innerHTML='<option value="">Select learner</option>'+state.learners.map(l=>`<option value="${l.id}">${esc(l.first+' '+l.last)}</option>`).join('');openM('reviewAttachModal')}
 function attachSnapshotToLearner(){const learnerId=$('reviewAttachLearner').value;if(!learnerId)return alert('Select the correct learner.');closeM('reviewAttachModal');openReviewEditor(null,learnerId,pendingReviewSnapshot?.transferId)}
 function deleteReceivedSnapshot(id){if(!confirm('Delete this received snapshot?'))return;state.reviewSnapshots=state.reviewSnapshots.filter(x=>x.transferId!==id);save()}
+
+function polishReviewEditor(){
+ const root=$('reviewEditorBody'),layout=root?.querySelector('.review-editor-layout');
+ if(!layout)return;
+ layout.classList.add('review-polished');
+ const sections=[...layout.querySelectorAll(':scope > .review-section.modern')];
+ const map={
+  'Apprentice+ progress snapshot':['review-wide',true,'Imported progress'],
+  'Review details':['review-side',false,'Review setup'],
+  'Previous actions':['review-side',true,'Previous review'],
+  'Professional discussion':['review-primary',false,'Discussion'],
+  'Agreed action plan':['review-primary',false,'Next steps'],
+  'Agreement':['review-wide',true,'Sign-off']
+ };
+ sections.forEach((section,index)=>{
+  const heading=section.querySelector(':scope > h3'); if(!heading)return;
+  const title=heading.textContent.trim(),cfg=map[title]||['review-wide',index>2,'Review section'];
+  section.classList.add(cfg[0]);
+  const body=document.createElement('div');body.className='review-section-body';
+  while(heading.nextSibling)body.appendChild(heading.nextSibling);
+  section.appendChild(body);
+  heading.innerHTML=`<span><span class="review-section-kicker">${cfg[2]}</span>${title}</span>`;
+  heading.setAttribute('role','button');heading.setAttribute('tabindex','0');heading.setAttribute('aria-expanded',String(!cfg[1]));
+  if(cfg[1])section.classList.add('is-collapsed');
+  const toggle=()=>{section.classList.toggle('is-collapsed');heading.setAttribute('aria-expanded',String(!section.classList.contains('is-collapsed')))};
+  heading.addEventListener('click',toggle);heading.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}});
+ });
+}
+
 function openReviewEditor(id=null,learnerId=null,snapshotId=null){
  editingReviewId=id;const old=state.reviews.find(x=>x.id===id),snap=state.reviewSnapshots.find(x=>x.transferId===(snapshotId||old?.snapshotTransferId)),l=reviewLearner(learnerId||old?.learnerId)||state.learners[0];if(!l)return alert('Add a learner first.');
  const att=attendanceStats(l.id),metrics=learnerSessionMetrics(l.id),prev=state.reviews.filter(r=>String(r.learnerId)===String(l.id)&&r.id!==id).sort((a,b)=>(b.reviewDate||'').localeCompare(a.reviewDate||''))[0];
@@ -937,7 +1028,7 @@ function openReviewEditor(id=null,learnerId=null,snapshotId=null){
  <div class="review-section modern"><h3>Professional discussion</h3><div class="review-field"><label>Learner comments</label><textarea id="rvLearnerComments">${esc(old?.learnerComments||snap?.learnerReflection||'')}</textarea></div><div class="review-field"><label>Employer / representative comments</label><textarea id="rvEmployerComments">${esc(old?.employerComments||'')}</textarea></div><div class="review-field"><label>Vocational Coach summary</label><textarea id="rvTutorSummary">${esc(old?.tutorSummary||buildSuggestedReviewSummary(l,snap,att,metrics))}</textarea></div><div class="review-field"><label>Barriers and support</label><textarea id="rvBarriers">${esc(old?.barriers||'')}</textarea></div></div>
  <div class="review-section modern"><h3>Agreed action plan</h3>${targets.map((t,i)=>`<div class="review-target"><div class="review-target-num">${i+1}</div><input id="rvTarget${i}" value="${esc(t.text||'')}" placeholder="Target ${i+1}"><input id="rvTargetDate${i}" type="date" value="${esc(t.dueDate||autoDates[i])}"></div>`).join('')}</div>
  <div class="review-section modern"><h3>Agreement</h3><div class="review-field"><label>Employer involved</label><select id="rvEmployerInvolved"><option value="yes" ${old?.employerInvolved!=='no'?'selected':''}>Yes</option><option value="no" ${old?.employerInvolved==='no'?'selected':''}>No — reason recorded</option></select></div><div class="review-field"><label>Agreement notes</label><textarea id="rvAgreement">${esc(old?.agreement||'')}</textarea></div><div class="signature-grid"><div class="signature-card"><label>Learner signature</label><canvas id="sig-learner" class="signature-pad"></canvas><div class="signature-actions"><button type="button" data-clear-signature="learner">Clear</button></div></div><div class="signature-card"><label>Employer / representative signature</label><canvas id="sig-employer" class="signature-pad"></canvas><div class="signature-actions"><button type="button" data-clear-signature="employer">Clear</button></div></div><div class="signature-card"><label>Vocational Coach signature</label><canvas id="sig-coach" class="signature-pad"></canvas><div class="signature-actions"><button type="button" data-clear-signature="coach">Clear</button></div></div></div></div></div>`;
- openM('reviewEditorModal');setTimeout(()=>initSignaturePads(old?.signatures||{}),50);
+ polishReviewEditor();openM('reviewEditorModal');setTimeout(()=>initSignaturePads(old?.signatures||{}),50);
  $('rvDate').addEventListener('change',e=>{const d=e.target.value;if(!d)return;$('rvNextDate').value=addDaysIso(d,56);defaultTargetDates(d).forEach((v,i)=>{$(`rvTargetDate${i}`).value=v})})
 }
 function buildSuggestedReviewSummary(l,snap,att,m){let parts=[`${l.first} ${l.last}'s attendance is ${Math.min(100,att.percent)}%, with ${minText(att.actual)} attended against ${minText(att.expected)} expected.`];if(m.lateSessions)parts.push(`${m.lateSessions} late session${m.lateSessions===1?' has':'s have'} been recorded.`);if(m.absentSessions)parts.push(`${m.absentSessions} absent session${m.absentSessions===1?' has':'s have'} been recorded.`);if(snap?.progressPercent!=null)parts.push(`Apprentice+ reports ${snap.progressPercent}% progress.`);if(snap?.otjHours!=null)parts.push(`Off-the-job learning recorded is ${snap.otjHours} hours${snap.otjRequired!=null?` against ${snap.otjRequired} required`:''}.`);return parts.join(' ')}
@@ -958,7 +1049,7 @@ function downloadCurrentReviewPack(){const r=state.reviews.find(x=>x.id===curren
 function safeFile(s){return String(s||'Review').replace(/[^a-z0-9_-]+/gi,'_').replace(/^_+|_+$/g,'')}
 function downloadBlob(name,data,type){const blob=data instanceof Blob?data:new Blob([data],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function downloadCurrentReviewPdf(){const r=state.reviews.find(x=>x.id===currentSharedReviewId);if(r)printReview(r)}
-function printReview(r){const l=reviewLearner(r.learnerId),a=attendanceStats(r.learnerId),m=learnerSessionMetrics(r.learnerId);const w=window.open('','_blank');if(!w)return alert('Allow pop-ups to create the PDF.');w.document.write(`<!doctype html><html><head><title>${esc(r.learnerName)} Review</title><style>body{font-family:Arial,sans-serif;color:#222;margin:32px;font-size:12px}h1{font-size:22px;margin:0 0 4px;color:#5b21b6}h2{font-size:14px;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:20px}.meta{color:#666}.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;margin:16px 0}.stat{padding:10px;border-right:1px solid #ccc}.stat:last-child{border:0}.stat b{display:block;font-size:16px}.box{border:1px solid #ccc;padding:10px;white-space:pre-wrap}.targets{padding-left:20px}.targets li{margin:7px 0}.foot{margin-top:24px;color:#666;font-size:10px}@media print{button{display:none}}</style></head><body><h1>Professional Apprenticeship Review</h1><div class="meta">${esc(r.learnerName)} · ${dateFmt(r.reviewDate)} · Next review ${dateFmt(r.nextReviewDate)}</div><div class="stats"><div class="stat">Attendance<b>${Math.min(100,a.percent)}%</b></div><div class="stat">Expected<b>${minText(a.expected)}</b></div><div class="stat">Attended<b>${minText(a.actual)}</b></div><div class="stat">RAG<b>${esc(r.rag)}</b></div></div><h2>Tutor summary</h2><div class="box">${esc(r.tutorSummary)}</div><h2>Learner comments</h2><div class="box">${esc(r.learnerComments||'No comments recorded.')}</div><h2>Employer comments</h2><div class="box">${esc(r.employerComments||'No comments recorded.')}</div><h2>Attendance detail</h2><div class="box">Late sessions: ${m.lateSessions}\nLateness: ${minText(m.lateMinutes)}\nAbsent sessions: ${m.absentSessions}\nMissed time: ${minText(m.absentMinutes)}</div><h2>Agreed action plan</h2><ol class="targets">${r.targets.map(t=>`<li>${esc(t.text)}${t.dueDate?` — due ${dateFmt(t.dueDate)}`:''}</li>`).join('')}</ol><h2>Barriers and support</h2><div class="box">${esc(r.barriers||'No barriers recorded.')}</div><h2>Agreement</h2><div class="box">Employer involved: ${r.employerInvolved==='yes'?'Yes':'No'}\n${esc(r.agreement||'')}</div><h2>Signatures</h2><div class="stats"><div class="stat">Learner<b>${r.signatures?.learner?'Signed':'Not signed'}</b>${r.signatures?.learner?`<img src="${r.signatures.learner}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Employer / representative<b>${r.signatures?.employer?'Signed':'Not signed'}</b>${r.signatures?.employer?`<img src="${r.signatures.employer}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Vocational Coach<b>${r.signatures?.coach?'Signed':'Not signed'}</b>${r.signatures?.coach?`<img src="${r.signatures.coach}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div></div><div class="foot">Generated by Assessor+ V3.9</div><script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`);w.document.close()}
+function printReview(r){const l=reviewLearner(r.learnerId),a=attendanceStats(r.learnerId),m=learnerSessionMetrics(r.learnerId);const w=window.open('','_blank');if(!w)return alert('Allow pop-ups to create the PDF.');w.document.write(`<!doctype html><html><head><title>${esc(r.learnerName)} Review</title><style>body{font-family:Arial,sans-serif;color:#222;margin:32px;font-size:12px}h1{font-size:22px;margin:0 0 4px;color:#5b21b6}h2{font-size:14px;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:20px}.meta{color:#666}.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;margin:16px 0}.stat{padding:10px;border-right:1px solid #ccc}.stat:last-child{border:0}.stat b{display:block;font-size:16px}.box{border:1px solid #ccc;padding:10px;white-space:pre-wrap}.targets{padding-left:20px}.targets li{margin:7px 0}.foot{margin-top:24px;color:#666;font-size:10px}@media print{button{display:none}}</style></head><body><h1>Professional Apprenticeship Review</h1><div class="meta">${esc(r.learnerName)} · ${dateFmt(r.reviewDate)} · Next review ${dateFmt(r.nextReviewDate)}</div><div class="stats"><div class="stat">Attendance<b>${Math.min(100,a.percent)}%</b></div><div class="stat">Expected<b>${minText(a.expected)}</b></div><div class="stat">Attended<b>${minText(a.actual)}</b></div><div class="stat">RAG<b>${esc(r.rag)}</b></div></div><h2>Tutor summary</h2><div class="box">${esc(r.tutorSummary)}</div><h2>Learner comments</h2><div class="box">${esc(r.learnerComments||'No comments recorded.')}</div><h2>Employer comments</h2><div class="box">${esc(r.employerComments||'No comments recorded.')}</div><h2>Attendance detail</h2><div class="box">Late sessions: ${m.lateSessions}\nLateness: ${minText(m.lateMinutes)}\nAbsent sessions: ${m.absentSessions}\nMissed time: ${minText(m.absentMinutes)}</div><h2>Agreed action plan</h2><ol class="targets">${r.targets.map(t=>`<li>${esc(t.text)}${t.dueDate?` — due ${dateFmt(t.dueDate)}`:''}</li>`).join('')}</ol><h2>Barriers and support</h2><div class="box">${esc(r.barriers||'No barriers recorded.')}</div><h2>Agreement</h2><div class="box">Employer involved: ${r.employerInvolved==='yes'?'Yes':'No'}\n${esc(r.agreement||'')}</div><h2>Signatures</h2><div class="stats"><div class="stat">Learner<b>${r.signatures?.learner?'Signed':'Not signed'}</b>${r.signatures?.learner?`<img src="${r.signatures.learner}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Employer / representative<b>${r.signatures?.employer?'Signed':'Not signed'}</b>${r.signatures?.employer?`<img src="${r.signatures.employer}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Vocational Coach<b>${r.signatures?.coach?'Signed':'Not signed'}</b>${r.signatures?.coach?`<img src="${r.signatures.coach}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div></div><div class="foot">Generated by Assessor+ V4.0</div><script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`);w.document.close()}
 function handleReviewFile(file){const reader=new FileReader();reader.onload=()=>{try{$('reviewImportText').value=String(reader.result||'');parseReviewImportText()}catch(e){alert('Could not read the selected file.')}};reader.readAsText(file)}
 let reviewQrDetector=null;
 let reviewScanBusy=false;
@@ -1025,7 +1116,7 @@ $('reviewScanImage')?.addEventListener('change',e=>{const f=e.target.files?.[0];
 $('reviewImportFile')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(f)handleReviewFile(f)});
 
 (() => {
-  const APP_VERSION = '3.9';
+  const APP_VERSION = '4.0';
   const RELEASE_NOTES = [
     'Replaced Assessments with professional Reviews.',
     'Added reliable return-review QR codes using a compact review summary.',
