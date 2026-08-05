@@ -30,34 +30,23 @@
     <main id="appContent" class="content" tabindex="-1">
       <section class="page active" data-page="home">
         <div class="welcome-card">
-          <p class="eyebrow">ASSESSOR+ V0.5</p>
+          <p class="eyebrow">ASSESSOR+ V0.6</p>
           <h2 id="dashboardGreeting">Welcome</h2>
           <p id="dashboardIntro">Your personalised workspace is ready.</p>
         </div>
 
-        <div class="dashboard-summary">
-          <article class="summary-card">
-            <span class="summary-label">Department</span>
-            <strong id="departmentName">Not selected</strong>
-            <small>Your workspace type</small>
-          </article>
-          <article class="summary-card">
-            <span class="summary-label">Today</span>
-            <strong>Nothing due</strong>
-            <small>Tasks and sessions will appear here</small>
-          </article>
+        <div class="section-heading home-section-heading">
+          <h3 id="homeStatisticsTitle">Department overview</h3>
+          <p id="homeStatisticsIntro">Statistics from your dashboard will appear here.</p>
         </div>
 
-        <div class="section-heading">
-          <h3>Your workspace</h3>
-          <p>A simple overview rather than a second copy of the navigation tabs.</p>
-        </div>
+        <div class="statistics-grid" id="homeStatistics" aria-live="polite"></div>
 
-        <div class="dashboard-panel">
+        <div class="dashboard-panel home-note-panel">
           <div class="dashboard-panel-icon">+</div>
           <div>
-            <h3>Ready to build</h3>
-            <p id="workspaceMessage">Features for your selected department will be added here as Assessor+ develops.</p>
+            <h3 id="homePanelTitle">Your department at a glance</h3>
+            <p id="workspaceMessage">As dashboard areas are added, their live totals and alerts will be summarised here.</p>
           </div>
         </div>
       </section>
@@ -66,13 +55,18 @@
         <div class="page-title">
           <div>
             <p class="eyebrow">PERSONALISED WORKSPACE</p>
-            <h2 id="pathwayPageTitle">Dashboard</h2>
+            <h2 id="departmentPageTitle">Dashboard</h2>
           </div>
         </div>
-        <div class="basic-page pathway-placeholder">
-          <div class="pathway-icon" aria-hidden="true">A+</div>
-          <h3 id="pathwayHeading">Choose a department</h3>
-          <p id="pathwayDescription">Your personalised dashboard tools will be built here.</p>
+        <div class="basic-page department-dashboard">
+          <div class="department-dashboard-header">
+            <div class="department-icon" aria-hidden="true">A+</div>
+            <div>
+              <h3 id="departmentHeading">Choose a department</h3>
+              <p id="departmentDescription">Your personalised dashboard tools will be built here.</p>
+            </div>
+          </div>
+          <div class="dashboard-area-grid" id="dashboardAreas"></div>
         </div>
       </section>
 
@@ -101,7 +95,7 @@
 
     <nav class="bottom-nav" aria-label="Main navigation">
       <button class="nav-item active" data-page-target="home"><span>⌂</span><small>Home</small></button>
-      <button class="nav-item" data-page-target="dashboard"><span>◆</span><small id="pathwayNavLabel">Dashboard</small></button>
+      <button class="nav-item" data-page-target="dashboard"><span>◆</span><small id="dashboardNavLabel">Dashboard</small></button>
       <button class="nav-item" data-page-target="tools"><span>▦</span><small>Toolbox</small></button>
     </nav>
   </div>
