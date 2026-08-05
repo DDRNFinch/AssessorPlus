@@ -207,3 +207,13 @@ if ("serviceWorker" in navigator) window.addEventListener("load", () => navigato
 if (selectedDepartment) applyDepartment(selectedDepartment);
 else window.addEventListener("load", () => openDepartmentSelector(true), { once: true });
 showPage(location.hash.replace("#", "") || "home");
+
+
+// Future sync architecture placeholder
+const syncArchitecture={
+ mode:"offline-first",
+ personIdLength:16,
+ dailySummaryHour:0,
+ autoSync:true,
+ description:"Encrypted updates are queued locally and synchronised to authorised recipients whenever an internet connection is available. A nightly summary is generated after synchronisation."
+};
