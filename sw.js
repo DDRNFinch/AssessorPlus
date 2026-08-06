@@ -1,4 +1,4 @@
-const CACHE = 'assessorplus-v4.8';
+const CACHE = 'assessorplus-v5.0';
 const ASSETS = [
   './',
   './index.html',
@@ -8,8 +8,6 @@ const ASSETS = [
   './icon-512.png',
   './qrcode-browser.js',
   './release.json',
-  './main.css',
-  './app.js'
 ];
 
 self.addEventListener('install', event => {
