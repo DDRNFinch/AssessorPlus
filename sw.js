@@ -1,13 +1,24 @@
-const CACHE = 'assessorplus-v5.1';
+const CACHE = 'assessorplus-v5.2';
 const ASSETS = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './assessor-logo.png',
-  './icon-192.png',
-  './icon-512.png',
-  './qrcode-browser.js',
-  './release.json',
+  "./",
+  "./index.html",
+  "./main.css",
+  "./app.js",
+  "./learners.js",
+  "./registers.js",
+  "./exports.js",
+  "./register-logs.js",
+  "./dashboard.js",
+  "./time-picker.js",
+  "./duration-picker.js",
+  "./reviews.js",
+  "./updates.js",
+  "./qrcode-browser.js",
+  "./manifest.webmanifest",
+  "./release.json",
+  "./assessor-logo.png",
+  "./icon-192.png",
+  "./icon-512.png"
 ];
 
 self.addEventListener('install', event => {

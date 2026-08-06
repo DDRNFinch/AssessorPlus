@@ -1,10 +1,9 @@
 {
-  "version": "V5.1",
-  "released": "2026-08-06",
+  "version": "5.2",
   "notes": [
-    "Added separate Active and Withdrawn learner tabs.",
-    "Learners can be withdrawn while retaining attendance, review and register history.",
-    "Withdrawn learners can be reinstated from their profile.",
-    "Withdrawn learners are excluded from new registers, missed-register recovery and new reviews."
+    "Refactored Assessor+ into a flat multi-file codebase with no folders.",
+    "Separated learner, register, register-log, review, export, time-control and update logic for safer future updates.",
+    "Kept existing local data keys and app behaviour unchanged.",
+    "Removed obsolete duplicate files and refreshed the PWA cache."
   ]
 }
