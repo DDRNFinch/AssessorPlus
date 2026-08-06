@@ -345,7 +345,7 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 <div class="page-head"><h1>Reviews</h1><div class="actions" id="assessmentHeaderActions"></div></div>
 <div id="assessmentContent"></div>
 </section>
-<section id="settings" class="page"><div class="page-head"><h1>Settings</h1></div><div class="settings-grid"><div class="card"><h3>Assessor+ version</h3><div class="version-line"><strong id="appVersion">V4.7</strong><span id="updateStatus" class="muted">Checking for updates…</span></div><p class="muted">Updates are checked automatically whenever Assessor+ opens. When a new version is ready, you will see what has changed before installing it.</p><button id="checkUpdateBtn" class="btn light" type="button">Check for updates</button></div><div class="card"><h3>Time controls</h3><p class="muted">Every time and duration selector moves in 5-minute increments. Learner time banks are calculated from the first arrival in each teaching session.</p></div><div class="card"><h3>App data</h3><p class="muted">Learners, classes and registers are saved in this browser.</p><button class="btn danger" onclick="if(confirm('Clear all app data?')){localStorage.removeItem(KEY);location.reload()}">Clear app data</button></div></div></section>
+<section id="settings" class="page"><div class="page-head"><h1>Settings</h1></div><div class="settings-grid"><div class="card"><h3>Assessor+ version</h3><div class="version-line"><strong id="appVersion">V4.8</strong><span id="updateStatus" class="muted">Checking for updates…</span></div><p class="muted">Updates are checked automatically whenever Assessor+ opens. When a new version is ready, you will see what has changed before installing it.</p><button id="checkUpdateBtn" class="btn light" type="button">Check for updates</button></div><div class="card"><h3>Time controls</h3><p class="muted">Every time and duration selector moves in 5-minute increments. Learner time banks are calculated from the first arrival in each teaching session.</p></div><div class="card"><h3>App data</h3><p class="muted">Learners, classes and registers are saved in this browser.</p><button class="btn danger" onclick="if(confirm('Clear all app data?')){localStorage.removeItem(KEY);location.reload()}">Clear app data</button></div></div></section>
 </main></div>
 
 <div class="modal-wrap" id="learnerExportModal"><div class="modal" style="max-width:560px"><h2>Export selected learners</h2><p class="muted" id="learnerExportSummary"></p><div class="export-format-list"><button class="export-format-row" type="button" onclick="exportSelectedLearners('pdf')"><strong>PDF attendance report</strong><span>Easy-to-read learner summaries and complete register history.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLearners('csv')"><strong>CSV summary</strong><span>One clear overall summary row per learner for Excel.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLearners('zip')"><strong>ZIP pack</strong><span>Contains the PDF, CSV and learner transfer pack together.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLearners('aplearner')"><strong>Assessor+ learner pack</strong><span>Packaged learner data for importing into a compatible Assessor+ or Apprentice+ app.</span></button></div><div class="modal-foot"><button class="btn light" type="button" onclick="closeM('learnerExportModal')">Cancel</button></div></div></div>
@@ -1150,7 +1150,7 @@ function downloadCurrentReviewPack(){const r=state.reviews.find(x=>x.id===curren
 function safeFile(s){return String(s||'Review').replace(/[^a-z0-9_-]+/gi,'_').replace(/^_+|_+$/g,'')}
 function downloadBlob(name,data,type){const blob=data instanceof Blob?data:new Blob([data],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function downloadCurrentReviewPdf(){const r=state.reviews.find(x=>x.id===currentSharedReviewId);if(r)printReview(r)}
-function printReview(r){const l=reviewLearner(r.learnerId),a=attendanceStats(r.learnerId),m=learnerSessionMetrics(r.learnerId);const w=window.open('','_blank');if(!w)return alert('Allow pop-ups to create the PDF.');w.document.write(`<!doctype html><html><head><title>${esc(r.learnerName)} Review</title><style>body{font-family:Arial,sans-serif;color:#222;margin:32px;font-size:12px}h1{font-size:22px;margin:0 0 4px;color:#5b21b6}h2{font-size:14px;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:20px}.meta{color:#666}.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;margin:16px 0}.stat{padding:10px;border-right:1px solid #ccc}.stat:last-child{border:0}.stat b{display:block;font-size:16px}.box{border:1px solid #ccc;padding:10px;white-space:pre-wrap}.targets{padding-left:20px}.targets li{margin:7px 0}.foot{margin-top:24px;color:#666;font-size:10px}@media print{button{display:none}}</style></head><body><h1>Professional Apprenticeship Review</h1><div class="meta">${esc(r.learnerName)} · ${dateFmt(r.reviewDate)} · Next review ${dateFmt(r.nextReviewDate)}</div><div class="stats"><div class="stat">Attendance<b>${Math.min(100,a.percent)}%</b></div><div class="stat">Expected<b>${minText(a.expected)}</b></div><div class="stat">Attended<b>${minText(a.actual)}</b></div><div class="stat">RAG<b>${esc(r.rag)}</b></div></div><h2>Tutor summary</h2><div class="box">${esc(r.tutorSummary)}</div><h2>Learner comments</h2><div class="box">${esc(r.learnerComments||'No comments recorded.')}</div><h2>Employer comments</h2><div class="box">${esc(r.employerComments||'No comments recorded.')}</div><h2>Attendance detail</h2><div class="box">Late sessions: ${m.lateSessions}\nLateness: ${minText(m.lateMinutes)}\nAbsent sessions: ${m.absentSessions}\nMissed time: ${minText(m.absentMinutes)}</div><h2>Agreed action plan</h2><ol class="targets">${r.targets.map(t=>`<li>${esc(t.text)}${t.dueDate?` — due ${dateFmt(t.dueDate)}`:''}</li>`).join('')}</ol><h2>Barriers and support</h2><div class="box">${esc(r.barriers||'No barriers recorded.')}</div><h2>Agreement</h2><div class="box">Employer involved: ${r.employerInvolved==='yes'?'Yes':'No'}\n${esc(r.agreement||'')}</div><h2>Signatures</h2><div class="stats"><div class="stat">Learner<b>${r.signatures?.learner?'Signed':'Not signed'}</b>${r.signatures?.learner?`<img src="${r.signatures.learner}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Employer / representative<b>${r.signatures?.employer?'Signed':'Not signed'}</b>${r.signatures?.employer?`<img src="${r.signatures.employer}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Vocational Coach<b>${r.signatures?.coach?'Signed':'Not signed'}</b>${r.signatures?.coach?`<img src="${r.signatures.coach}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div></div><div class="foot">Generated by Assessor+ V4.7</div><script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`);w.document.close()}
+function printReview(r){const l=reviewLearner(r.learnerId),a=attendanceStats(r.learnerId),m=learnerSessionMetrics(r.learnerId);const w=window.open('','_blank');if(!w)return alert('Allow pop-ups to create the PDF.');w.document.write(`<!doctype html><html><head><title>${esc(r.learnerName)} Review</title><style>body{font-family:Arial,sans-serif;color:#222;margin:32px;font-size:12px}h1{font-size:22px;margin:0 0 4px;color:#5b21b6}h2{font-size:14px;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:20px}.meta{color:#666}.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;margin:16px 0}.stat{padding:10px;border-right:1px solid #ccc}.stat:last-child{border:0}.stat b{display:block;font-size:16px}.box{border:1px solid #ccc;padding:10px;white-space:pre-wrap}.targets{padding-left:20px}.targets li{margin:7px 0}.foot{margin-top:24px;color:#666;font-size:10px}@media print{button{display:none}}</style></head><body><h1>Professional Apprenticeship Review</h1><div class="meta">${esc(r.learnerName)} · ${dateFmt(r.reviewDate)} · Next review ${dateFmt(r.nextReviewDate)}</div><div class="stats"><div class="stat">Attendance<b>${Math.min(100,a.percent)}%</b></div><div class="stat">Expected<b>${minText(a.expected)}</b></div><div class="stat">Attended<b>${minText(a.actual)}</b></div><div class="stat">RAG<b>${esc(r.rag)}</b></div></div><h2>Tutor summary</h2><div class="box">${esc(r.tutorSummary)}</div><h2>Learner comments</h2><div class="box">${esc(r.learnerComments||'No comments recorded.')}</div><h2>Employer comments</h2><div class="box">${esc(r.employerComments||'No comments recorded.')}</div><h2>Attendance detail</h2><div class="box">Late sessions: ${m.lateSessions}\nLateness: ${minText(m.lateMinutes)}\nAbsent sessions: ${m.absentSessions}\nMissed time: ${minText(m.absentMinutes)}</div><h2>Agreed action plan</h2><ol class="targets">${r.targets.map(t=>`<li>${esc(t.text)}${t.dueDate?` — due ${dateFmt(t.dueDate)}`:''}</li>`).join('')}</ol><h2>Barriers and support</h2><div class="box">${esc(r.barriers||'No barriers recorded.')}</div><h2>Agreement</h2><div class="box">Employer involved: ${r.employerInvolved==='yes'?'Yes':'No'}\n${esc(r.agreement||'')}</div><h2>Signatures</h2><div class="stats"><div class="stat">Learner<b>${r.signatures?.learner?'Signed':'Not signed'}</b>${r.signatures?.learner?`<img src="${r.signatures.learner}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Employer / representative<b>${r.signatures?.employer?'Signed':'Not signed'}</b>${r.signatures?.employer?`<img src="${r.signatures.employer}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Vocational Coach<b>${r.signatures?.coach?'Signed':'Not signed'}</b>${r.signatures?.coach?`<img src="${r.signatures.coach}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div></div><div class="foot">Generated by Assessor+ V4.8</div><script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`);w.document.close()}
 function handleReviewFile(file){const reader=new FileReader();reader.onload=()=>{try{$('reviewImportText').value=String(reader.result||'');parseReviewImportText()}catch(e){alert('Could not read the selected file.')}};reader.readAsText(file)}
 let reviewQrDetector=null;
 let reviewScanBusy=false;
@@ -1242,31 +1242,40 @@ document.addEventListener('click',e=>{
 });
 
 (() => {
-  const APP_VERSION = '4.6';
-  const RELEASE_NOTES = [
-    'Replaced Assessments with professional Reviews.',
-    'Added reliable return-review QR codes using a compact review summary.',
-    'Added full .apreview files for detailed distance-review transfer.',
-    'Redesigned Reviews and QR receiving to match the compact Assessor+ interface.',
-    'Fixed QR camera startup with camera retries, permission guidance and a restart control.',
-    'Fixed PWA update detection so installed V3.7/V3.8 apps reliably receive new releases.',
-    'Modernised professional review layout with automatic RAG, target dates, EPA readiness, progress snapshot and three signatures.',
-    'Apprentice+ V1.8 can scan the completed-review QR directly.',
-    'Enlarged the learner-review QR camera with a near full-screen mobile preview, clearer scan frame and animated scan guide.'
+  const APP_VERSION = '4.8';
+  const FALLBACK_RELEASE_NOTES = [
+    'Fixed the update popup so it loads the release notes for the version waiting to be installed.',
+    'Added a live release manifest so future updates show the correct version number and What’s new list.',
+    'Removed stale V3.7/V3.9 update references from the PWA registration flow.',
+    'Retained the V4.7 missed-register fixes and instant learner search.'
   ];
   let registration = null;
   let waitingWorker = null;
   let refreshing = false;
 
   const setStatus = text => { const el = document.getElementById('updateStatus'); if (el) el.textContent = text; };
-  const showUpdate = worker => {
+  const loadReleaseInfo = async () => {
+    try {
+      const response = await fetch(`./release.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error('Release metadata unavailable');
+      const data = await response.json();
+      return {
+        version: String(data.version || APP_VERSION),
+        notes: Array.isArray(data.notes) && data.notes.length ? data.notes.map(String) : FALLBACK_RELEASE_NOTES
+      };
+    } catch {
+      return { version: APP_VERSION, notes: FALLBACK_RELEASE_NOTES };
+    }
+  };
+  const showUpdate = async worker => {
     waitingWorker = worker;
+    const release = await loadReleaseInfo();
     const versionText = document.getElementById('updateVersionText');
-    if (versionText) versionText.textContent = 'A newer Assessor+ version is ready. Install it now to use the latest changes.';
+    if (versionText) versionText.textContent = `Assessor+ V${release.version} is ready to install.`;
     const notes = document.getElementById('updateNotes');
-    if (notes) notes.innerHTML = RELEASE_NOTES.map(note => `<li>${note}</li>`).join('');
+    if (notes) notes.innerHTML = release.notes.map(note => `<li>${esc(note)}</li>`).join('');
     document.getElementById('updateModal')?.classList.add('open');
-    setStatus('Update available');
+    setStatus(`V${release.version} available`);
   };
   const inspectRegistration = reg => {
     registration = reg;
@@ -1289,7 +1298,7 @@ document.addEventListener('click',e=>{
     setStatus('Checking for updates…');
     try {
       await registration.update();
-      if (registration.waiting) showUpdate(registration.waiting);
+      if (registration.waiting) await showUpdate(registration.waiting);
       else setTimeout(() => { if (!waitingWorker) setStatus('Assessor+ is up to date'); }, 700);
     } catch { setStatus('Could not check for updates'); }
   });
@@ -1312,9 +1321,9 @@ document.addEventListener('click',e=>{
     });
     window.addEventListener('load', async () => {
       try {
-        const reg = await navigator.serviceWorker.register('./sw.js?v=4.6', { updateViaCache: 'none' });
+        const reg = await navigator.serviceWorker.register('./sw.js?v=4.8', { updateViaCache: 'none' });
         inspectRegistration(reg);
-        setStatus('Assessor+ is up to date');
+        setStatus(`V${APP_VERSION} installed`);
         await reg.update().catch(() => {});
       } catch {
         setStatus('Updates are unavailable in this browser');

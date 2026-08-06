@@ -1,0 +1,10 @@
+{
+  "version": "4.8",
+  "released": "2026-08-06",
+  "notes": [
+    "Fixed the update popup so it shows the changes in the version waiting to be installed.",
+    "Added live release metadata for future Assessor+ updates.",
+    "Removed outdated V3.7 and V3.9 references from the update system.",
+    "Retained the V4.7 missed-register recovery fixes and instant learner search."
+  ]
+}

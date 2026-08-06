@@ -1,4 +1,4 @@
-const CACHE = 'assessorplus-v4.7';
+const CACHE = 'assessorplus-v4.8';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './qrcode-browser.js',
+  './release.json',
   './main.css',
   './app.js'
 ];
