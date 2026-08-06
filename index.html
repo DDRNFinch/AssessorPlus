@@ -625,7 +625,7 @@ function deleteRegisterById(id){
   renderAll();
 }
 function setLogTab(tab){
-  currentLogTab=tab==='all'?'all':'unsent';
+  currentLogTab=['unsent','all','missed'].includes(tab)?tab:'unsent';
   selectedLogIds.clear();
   renderLogs();
 }
@@ -680,10 +680,11 @@ async function exportSelectedLogs(format){
  }
  markLogsSent(logs)
 }
-function registerIsOneOff(c){return c?.recurring===false||!!c?.oneOffDate}
+function legacyOneOffDate(c){return c?.oneOffDate||c?.scheduledDate||c?.registerDate||((c?.recurring===false&&/^\d{4}-\d{2}-\d{2}$/.test(String(c?.date||'')))?c.date:'')}
+function registerIsOneOff(c){return c?.recurring===false||!!legacyOneOffDate(c)}
 function registerHasCompletedLog(c,date){return state.logs.some(l=>String(l.classId||'')===String(c.id||'')&&l.date===date)}
 function registerWasScheduledOn(c,date){
- if(registerIsOneOff(c))return c.oneOffDate===date;
+ if(registerIsOneOff(c))return legacyOneOffDate(c)===date;
  if(c.recurringStart&&date<c.recurringStart)return false;
  if(c.recurringEnd&&date>c.recurringEnd)return false;
  return Number(c.weekday)===dayStart(date).getDay();
@@ -693,7 +694,7 @@ function missedRegisterCandidates(daysBack=90){
  const current=now(),today=dateISO(current),startDate=new Date(dayStart(today));startDate.setDate(startDate.getDate()-daysBack);let out=[];
  for(const c of state.classes){
   if(registerIsOneOff(c)){
-   const d=c.oneOffDate;
+   const d=legacyOneOffDate(c);
    if(d&&dayStart(d)>=startDate&&registerScheduledEnd(c,d)<current&&!registerHasCompletedLog(c,d)&&!(state.live?.classId===c.id&&state.live?.date===d)&&!isClassOnHoliday(c.id,d))out.push({c,date:d});
    continue;
   }
@@ -722,6 +723,7 @@ function createMissedRegisterLog(classId,date){
  state.logs.unshift(log);save();currentLogTab='all';renderLogs();openEditLog(log.id);
 }
 function renderLogs(){
+  if(state.live){const end=liveScheduledEnd(state.live);if(end&&now().getTime()>=end.getTime()){completeDay(true);return}}
   const el=$('logList'),unsent=state.logs.filter(log=>!log.sentAt),visible=currentLogTab==='all'?state.logs:currentLogTab==='unsent'?unsent:[];
   for(const id of [...selectedLogIds])if(!state.logs.some(log=>String(log.id)===id))selectedLogIds.delete(id);
   $('unsentLogTab')?.classList.toggle('active',currentLogTab==='unsent');$('allLogTab')?.classList.toggle('active',currentLogTab==='all');$('missedLogTab')?.classList.toggle('active',currentLogTab==='missed');
@@ -1150,7 +1152,7 @@ function downloadCurrentReviewPack(){const r=state.reviews.find(x=>x.id===curren
 function safeFile(s){return String(s||'Review').replace(/[^a-z0-9_-]+/gi,'_').replace(/^_+|_+$/g,'')}
 function downloadBlob(name,data,type){const blob=data instanceof Blob?data:new Blob([data],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function downloadCurrentReviewPdf(){const r=state.reviews.find(x=>x.id===currentSharedReviewId);if(r)printReview(r)}
-function printReview(r){const l=reviewLearner(r.learnerId),a=attendanceStats(r.learnerId),m=learnerSessionMetrics(r.learnerId);const w=window.open('','_blank');if(!w)return alert('Allow pop-ups to create the PDF.');w.document.write(`<!doctype html><html><head><title>${esc(r.learnerName)} Review</title><style>body{font-family:Arial,sans-serif;color:#222;margin:32px;font-size:12px}h1{font-size:22px;margin:0 0 4px;color:#5b21b6}h2{font-size:14px;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:20px}.meta{color:#666}.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;margin:16px 0}.stat{padding:10px;border-right:1px solid #ccc}.stat:last-child{border:0}.stat b{display:block;font-size:16px}.box{border:1px solid #ccc;padding:10px;white-space:pre-wrap}.targets{padding-left:20px}.targets li{margin:7px 0}.foot{margin-top:24px;color:#666;font-size:10px}@media print{button{display:none}}</style></head><body><h1>Professional Apprenticeship Review</h1><div class="meta">${esc(r.learnerName)} · ${dateFmt(r.reviewDate)} · Next review ${dateFmt(r.nextReviewDate)}</div><div class="stats"><div class="stat">Attendance<b>${Math.min(100,a.percent)}%</b></div><div class="stat">Expected<b>${minText(a.expected)}</b></div><div class="stat">Attended<b>${minText(a.actual)}</b></div><div class="stat">RAG<b>${esc(r.rag)}</b></div></div><h2>Tutor summary</h2><div class="box">${esc(r.tutorSummary)}</div><h2>Learner comments</h2><div class="box">${esc(r.learnerComments||'No comments recorded.')}</div><h2>Employer comments</h2><div class="box">${esc(r.employerComments||'No comments recorded.')}</div><h2>Attendance detail</h2><div class="box">Late sessions: ${m.lateSessions}\nLateness: ${minText(m.lateMinutes)}\nAbsent sessions: ${m.absentSessions}\nMissed time: ${minText(m.absentMinutes)}</div><h2>Agreed action plan</h2><ol class="targets">${r.targets.map(t=>`<li>${esc(t.text)}${t.dueDate?` — due ${dateFmt(t.dueDate)}`:''}</li>`).join('')}</ol><h2>Barriers and support</h2><div class="box">${esc(r.barriers||'No barriers recorded.')}</div><h2>Agreement</h2><div class="box">Employer involved: ${r.employerInvolved==='yes'?'Yes':'No'}\n${esc(r.agreement||'')}</div><h2>Signatures</h2><div class="stats"><div class="stat">Learner<b>${r.signatures?.learner?'Signed':'Not signed'}</b>${r.signatures?.learner?`<img src="${r.signatures.learner}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Employer / representative<b>${r.signatures?.employer?'Signed':'Not signed'}</b>${r.signatures?.employer?`<img src="${r.signatures.employer}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Vocational Coach<b>${r.signatures?.coach?'Signed':'Not signed'}</b>${r.signatures?.coach?`<img src="${r.signatures.coach}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div></div><div class="foot">Generated by Assessor+ V4.8</div><script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`);w.document.close()}
+function printReview(r){const l=reviewLearner(r.learnerId),a=attendanceStats(r.learnerId),m=learnerSessionMetrics(r.learnerId);const w=window.open('','_blank');if(!w)return alert('Allow pop-ups to create the PDF.');w.document.write(`<!doctype html><html><head><title>${esc(r.learnerName)} Review</title><style>body{font-family:Arial,sans-serif;color:#222;margin:32px;font-size:12px}h1{font-size:22px;margin:0 0 4px;color:#5b21b6}h2{font-size:14px;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:20px}.meta{color:#666}.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;margin:16px 0}.stat{padding:10px;border-right:1px solid #ccc}.stat:last-child{border:0}.stat b{display:block;font-size:16px}.box{border:1px solid #ccc;padding:10px;white-space:pre-wrap}.targets{padding-left:20px}.targets li{margin:7px 0}.foot{margin-top:24px;color:#666;font-size:10px}@media print{button{display:none}}</style></head><body><h1>Professional Apprenticeship Review</h1><div class="meta">${esc(r.learnerName)} · ${dateFmt(r.reviewDate)} · Next review ${dateFmt(r.nextReviewDate)}</div><div class="stats"><div class="stat">Attendance<b>${Math.min(100,a.percent)}%</b></div><div class="stat">Expected<b>${minText(a.expected)}</b></div><div class="stat">Attended<b>${minText(a.actual)}</b></div><div class="stat">RAG<b>${esc(r.rag)}</b></div></div><h2>Tutor summary</h2><div class="box">${esc(r.tutorSummary)}</div><h2>Learner comments</h2><div class="box">${esc(r.learnerComments||'No comments recorded.')}</div><h2>Employer comments</h2><div class="box">${esc(r.employerComments||'No comments recorded.')}</div><h2>Attendance detail</h2><div class="box">Late sessions: ${m.lateSessions}\nLateness: ${minText(m.lateMinutes)}\nAbsent sessions: ${m.absentSessions}\nMissed time: ${minText(m.absentMinutes)}</div><h2>Agreed action plan</h2><ol class="targets">${r.targets.map(t=>`<li>${esc(t.text)}${t.dueDate?` — due ${dateFmt(t.dueDate)}`:''}</li>`).join('')}</ol><h2>Barriers and support</h2><div class="box">${esc(r.barriers||'No barriers recorded.')}</div><h2>Agreement</h2><div class="box">Employer involved: ${r.employerInvolved==='yes'?'Yes':'No'}\n${esc(r.agreement||'')}</div><h2>Signatures</h2><div class="stats"><div class="stat">Learner<b>${r.signatures?.learner?'Signed':'Not signed'}</b>${r.signatures?.learner?`<img src="${r.signatures.learner}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Employer / representative<b>${r.signatures?.employer?'Signed':'Not signed'}</b>${r.signatures?.employer?`<img src="${r.signatures.employer}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Vocational Coach<b>${r.signatures?.coach?'Signed':'Not signed'}</b>${r.signatures?.coach?`<img src="${r.signatures.coach}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div></div><div class="foot">Generated by Assessor+ V4.9</div><script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`);w.document.close()}
 function handleReviewFile(file){const reader=new FileReader();reader.onload=()=>{try{$('reviewImportText').value=String(reader.result||'');parseReviewImportText()}catch(e){alert('Could not read the selected file.')}};reader.readAsText(file)}
 let reviewQrDetector=null;
 let reviewScanBusy=false;
@@ -1242,12 +1244,14 @@ document.addEventListener('click',e=>{
 });
 
 (() => {
-  const APP_VERSION = '4.8';
+  const APP_VERSION = '4.9';
   const FALLBACK_RELEASE_NOTES = [
     'Fixed the update popup so it loads the release notes for the version waiting to be installed.',
     'Added a live release manifest so future updates show the correct version number and What’s new list.',
     'Removed stale V3.7/V3.9 update references from the PWA registration flow.',
-    'Retained the V4.7 missed-register fixes and instant learner search.'
+    'Fixed the Missed Registers tab and restored overdue one-off register detection.',
+    'Missed registers now include compatible registers created by older Assessor+ versions.',
+    'Overdue active registers are finalised before the missed-register list is shown.'
   ];
   let registration = null;
   let waitingWorker = null;
@@ -1321,7 +1325,7 @@ document.addEventListener('click',e=>{
     });
     window.addEventListener('load', async () => {
       try {
-        const reg = await navigator.serviceWorker.register('./sw.js?v=4.8', { updateViaCache: 'none' });
+        const reg = await navigator.serviceWorker.register('./sw.js?v=4.9', { updateViaCache: 'none' });
         inspectRegistration(reg);
         setStatus(`V${APP_VERSION} installed`);
         await reg.update().catch(() => {});

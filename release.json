@@ -1,10 +1,9 @@
 {
-  "version": "4.8",
-  "released": "2026-08-06",
+  "version": "4.9",
   "notes": [
-    "Fixed the update popup so it shows the changes in the version waiting to be installed.",
-    "Added live release metadata for future Assessor+ updates.",
-    "Removed outdated V3.7 and V3.9 references from the update system.",
-    "Retained the V4.7 missed-register recovery fixes and instant learner search."
+    "Fixed the Missed Registers tab so it opens correctly.",
+    "Restored detection of overdue one-off and recurring registers.",
+    "Added compatibility for one-off registers created by older versions.",
+    "Overdue active registers are finalised before missed registers are listed."
   ]
 }
