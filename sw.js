@@ -1,4 +1,4 @@
-const CACHE = 'assessorplus-v4-1-large-review-scanner';
+const CACHE = 'assessorplus-v4-2-large-review-scanner';
 const ASSETS = [
   './',
   './index.html',
