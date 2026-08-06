@@ -219,7 +219,7 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 #reviewImportModal .modal,#reviewScanModal .modal,#reviewAttachModal .modal,#reviewShareModal .modal{border-radius:14px}
 @media(max-width:760px){.review-commandbar{align-items:flex-start;flex-direction:column}.review-commandbar .review-inline-actions{width:100%}.review-commandbar .btn{flex:1}.review-kpi-grid{grid-template-columns:repeat(2,1fr)}.review-kpi:nth-child(3n){border-right:1px solid var(--line)}.review-kpi:nth-child(2n){border-right:0}.review-kpi:nth-last-child(-n+3){border-bottom:1px solid var(--line)}.review-kpi:nth-last-child(-n+2){border-bottom:0}.review-tabs{overflow-x:auto}.review-tabs button{white-space:nowrap;min-width:max-content}.review-target{grid-template-columns:26px 1fr}.review-target input[type=date]{grid-column:2}.snapshot-item:nth-child(n){border-right:0}.snapshot-item:not(:last-child){border-bottom:1px solid var(--line)}}
 
-/* V4.5 professional review workspace */
+/* V4.6 professional review workspace */
 #reviewEditorModal .modal{max-width:1120px!important;width:min(1120px,calc(100vw - 24px));background:#f6f5f8}
 #reviewEditorModal .modal>h2{background:#fff;padding:16px 18px;font-size:18px;letter-spacing:-.01em}
 #reviewEditorBody{padding:14px 16px 20px;max-height:76vh}
@@ -283,11 +283,11 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 
 .learner-search{position:relative;margin:0 0 10px}.learner-search input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line);border-radius:9px;background:#fff;font:inherit}.learner-search::before{content:"⌕";position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:18px}.learner-picker-list{border:1px solid var(--line);border-radius:9px;overflow:hidden;max-height:360px;overflow-y:auto}.learner-picker-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:0;border-bottom:1px solid var(--line);background:#fff;text-align:left;cursor:pointer}.learner-picker-row:last-child{border-bottom:0}.learner-picker-row:hover{background:#f6f4fb}.learner-picker-row strong{font-size:14px}.learner-picker-row span{font-size:12px;color:var(--muted)}
 
-/* V4.5 register recovery and compact sorting */
+/* V4.6 register recovery and compact sorting */
 .missed-register-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
 .missed-register-row:last-child{border-bottom:0}.missed-register-main{min-width:0}.missed-register-main strong{display:block}.date-range-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.edit-present-check{display:flex;align-items:center;gap:8px;font-weight:700;padding-top:22px}.edit-present-check input{width:20px;height:20px}.register-log-card .row-title{font-weight:800}
 
-/* V4.5 register recovery and sorting */
+/* V4.6 register recovery and sorting */
 .missed-register-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
 .missed-register-row:last-child{border-bottom:0}.missed-register-main{min-width:0}.missed-register-main strong{display:block}
 .date-range-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -345,7 +345,7 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 <div class="page-head"><h1>Reviews</h1><div class="actions" id="assessmentHeaderActions"></div></div>
 <div id="assessmentContent"></div>
 </section>
-<section id="settings" class="page"><div class="page-head"><h1>Settings</h1></div><div class="settings-grid"><div class="card"><h3>Assessor+ version</h3><div class="version-line"><strong id="appVersion">V4.5</strong><span id="updateStatus" class="muted">Checking for updates…</span></div><p class="muted">Updates are checked automatically whenever Assessor+ opens. When a new version is ready, you will see what has changed before installing it.</p><button id="checkUpdateBtn" class="btn light" type="button">Check for updates</button></div><div class="card"><h3>Time controls</h3><p class="muted">Every time and duration selector moves in 5-minute increments. Learner time banks are calculated from the first arrival in each teaching session.</p></div><div class="card"><h3>App data</h3><p class="muted">Learners, classes and registers are saved in this browser.</p><button class="btn danger" onclick="if(confirm('Clear all app data?')){localStorage.removeItem(KEY);location.reload()}">Clear app data</button></div></div></section>
+<section id="settings" class="page"><div class="page-head"><h1>Settings</h1></div><div class="settings-grid"><div class="card"><h3>Assessor+ version</h3><div class="version-line"><strong id="appVersion">V4.6</strong><span id="updateStatus" class="muted">Checking for updates…</span></div><p class="muted">Updates are checked automatically whenever Assessor+ opens. When a new version is ready, you will see what has changed before installing it.</p><button id="checkUpdateBtn" class="btn light" type="button">Check for updates</button></div><div class="card"><h3>Time controls</h3><p class="muted">Every time and duration selector moves in 5-minute increments. Learner time banks are calculated from the first arrival in each teaching session.</p></div><div class="card"><h3>App data</h3><p class="muted">Learners, classes and registers are saved in this browser.</p><button class="btn danger" onclick="if(confirm('Clear all app data?')){localStorage.removeItem(KEY);location.reload()}">Clear app data</button></div></div></section>
 </main></div>
 
 <div class="modal-wrap" id="learnerExportModal"><div class="modal" style="max-width:560px"><h2>Export selected learners</h2><p class="muted" id="learnerExportSummary"></p><div class="export-format-list"><button class="export-format-row" type="button" onclick="exportSelectedLearners('pdf')"><strong>PDF attendance report</strong><span>Easy-to-read learner summaries and complete register history.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLearners('csv')"><strong>CSV summary</strong><span>One clear overall summary row per learner for Excel.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLearners('zip')"><strong>ZIP pack</strong><span>Contains the PDF, CSV and learner transfer pack together.</span></button><button class="export-format-row" type="button" onclick="exportSelectedLearners('aplearner')"><strong>Assessor+ learner pack</strong><span>Packaged learner data for importing into a compatible Assessor+ or Apprentice+ app.</span></button></div><div class="modal-foot"><button class="btn light" type="button" onclick="closeM('learnerExportModal')">Cancel</button></div></div></div>
@@ -372,13 +372,7 @@ main{padding-bottom:22px}.btn.primary{background:#6d28d9;color:#fff}.btn.primary
 
 <div class="modal-wrap" id="updateModal" role="dialog" aria-modal="true" aria-labelledby="updateTitle"><div class="modal update-modal"><div class="update-kicker">Assessor+ update</div><h2 id="updateTitle">A new version is available</h2><p class="muted" id="updateVersionText">The latest Assessor+ update is ready to install.</p><h3>What’s new</h3><ul id="updateNotes" class="update-notes"><li>Improved app update notifications.</li><li>Version information added to Settings.</li></ul><div class="modal-foot"><button id="updateLaterBtn" class="btn light" type="button">Later</button><button id="updateNowBtn" class="btn primary" type="button">Update now</button></div></div></div>
 
-<script src="./qrcode-browser.js">
-$('learnerSearch')?.addEventListener('input',renderLearners);
-$('classLearnerSearch')?.addEventListener('input',()=>renderClassLearnerChecks());
-$('reviewAttachSearch')?.addEventListener('input',()=>filterLearnerSelect('reviewAttachSearch','reviewAttachLearner'));
-$('reviewLearnerSearch')?.addEventListener('input',renderReviewLearnerPicker);
-document.addEventListener('click',e=>{const b=e.target.closest('[data-review-learner]');if(!b)return;closeM('reviewLearnerPickerModal');openReviewEditor(null,b.dataset.reviewLearner,null)});
-</script>
+<script src="./qrcode-browser.js"></script>
 <script>
 const KEY='assessorplus_timed_demo_v1';
 const $=id=>document.getElementById(id); const uid=p=>p+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -454,7 +448,7 @@ function renderLearners(){
   for(const id of [...selectedLearnerIds])if(!state.learners.some(l=>String(l.id)===id))selectedLearnerIds.delete(id);
   updateLearnerSelectionUi();
   if(!state.learners.length){el.innerHTML='<div class="empty">No learners yet.</div>';return;}
-  const visibleLearners=state.learners.filter(l=>(l.first+' '+l.last).toLowerCase().includes(learnerQuery));
+  const visibleLearners=sortedLearners(state.learners.filter(l=>(l.first+' '+l.last).toLowerCase().includes(learnerQuery)));
   if(!visibleLearners.length){el.innerHTML='<div class="empty">No learners match your search.</div>';updateLearnerSelectionUi();return;}
   el.innerHTML=visibleLearners.map(l=>{
     const a=attendanceStats(l.id),tone=a.percent>=85?'attendance-good':a.percent>=70?'attendance-warn':'attendance-low',id=String(l.id);
@@ -1123,7 +1117,7 @@ function polishReviewEditor(){
 }
 
 function openReviewLearnerPicker(){if(!state.learners.length)return alert('Add a learner first.');if($('reviewLearnerSearch'))$('reviewLearnerSearch').value='';renderReviewLearnerPicker();openM('reviewLearnerPickerModal')}
-function renderReviewLearnerPicker(){const el=$('reviewLearnerPickerList');if(!el)return;const q=($('reviewLearnerSearch')?.value||'').trim().toLowerCase();const learners=state.learners.filter(l=>(l.first+' '+l.last).toLowerCase().includes(q));el.innerHTML=learners.length?learners.map(l=>{const a=attendanceStats(l.id);return `<button type="button" class="learner-picker-row" data-review-learner="${esc(l.id)}"><strong>${esc(l.first+' '+l.last)}</strong><span>${Math.min(100,a.percent)}% attendance</span></button>`}).join(''):'<div class="empty">No learners match your search.</div>'}
+function renderReviewLearnerPicker(){const el=$('reviewLearnerPickerList');if(!el)return;const q=($('reviewLearnerSearch')?.value||'').trim().toLowerCase();const learners=sortedLearners(state.learners.filter(l=>(l.first+' '+l.last).toLowerCase().includes(q)));el.innerHTML=learners.length?learners.map(l=>{const a=attendanceStats(l.id);return `<button type="button" class="learner-picker-row" data-review-learner="${esc(l.id)}"><strong>${esc(l.first+' '+l.last)}</strong><span>${Math.min(100,a.percent)}% attendance</span></button>`}).join(''):'<div class="empty">No learners match your search.</div>'}
 function filterLearnerSelect(searchId,selectId){const input=$(searchId),sel=$(selectId);if(!input||!sel)return;const q=input.value.trim().toLowerCase();[...sel.options].forEach(o=>{o.hidden=q&&!o.text.toLowerCase().includes(q)});const first=[...sel.options].find(o=>!o.hidden);if(first&&!([...sel.selectedOptions][0]&&!([...sel.selectedOptions][0].hidden)))sel.value=first.value}
 function openReviewEditor(id=null,learnerId=null,snapshotId=null){
  if(!id&&!learnerId&&!snapshotId){openReviewLearnerPicker();return;}
@@ -1159,7 +1153,7 @@ function downloadCurrentReviewPack(){const r=state.reviews.find(x=>x.id===curren
 function safeFile(s){return String(s||'Review').replace(/[^a-z0-9_-]+/gi,'_').replace(/^_+|_+$/g,'')}
 function downloadBlob(name,data,type){const blob=data instanceof Blob?data:new Blob([data],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function downloadCurrentReviewPdf(){const r=state.reviews.find(x=>x.id===currentSharedReviewId);if(r)printReview(r)}
-function printReview(r){const l=reviewLearner(r.learnerId),a=attendanceStats(r.learnerId),m=learnerSessionMetrics(r.learnerId);const w=window.open('','_blank');if(!w)return alert('Allow pop-ups to create the PDF.');w.document.write(`<!doctype html><html><head><title>${esc(r.learnerName)} Review</title><style>body{font-family:Arial,sans-serif;color:#222;margin:32px;font-size:12px}h1{font-size:22px;margin:0 0 4px;color:#5b21b6}h2{font-size:14px;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:20px}.meta{color:#666}.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;margin:16px 0}.stat{padding:10px;border-right:1px solid #ccc}.stat:last-child{border:0}.stat b{display:block;font-size:16px}.box{border:1px solid #ccc;padding:10px;white-space:pre-wrap}.targets{padding-left:20px}.targets li{margin:7px 0}.foot{margin-top:24px;color:#666;font-size:10px}@media print{button{display:none}}</style></head><body><h1>Professional Apprenticeship Review</h1><div class="meta">${esc(r.learnerName)} · ${dateFmt(r.reviewDate)} · Next review ${dateFmt(r.nextReviewDate)}</div><div class="stats"><div class="stat">Attendance<b>${Math.min(100,a.percent)}%</b></div><div class="stat">Expected<b>${minText(a.expected)}</b></div><div class="stat">Attended<b>${minText(a.actual)}</b></div><div class="stat">RAG<b>${esc(r.rag)}</b></div></div><h2>Tutor summary</h2><div class="box">${esc(r.tutorSummary)}</div><h2>Learner comments</h2><div class="box">${esc(r.learnerComments||'No comments recorded.')}</div><h2>Employer comments</h2><div class="box">${esc(r.employerComments||'No comments recorded.')}</div><h2>Attendance detail</h2><div class="box">Late sessions: ${m.lateSessions}\nLateness: ${minText(m.lateMinutes)}\nAbsent sessions: ${m.absentSessions}\nMissed time: ${minText(m.absentMinutes)}</div><h2>Agreed action plan</h2><ol class="targets">${r.targets.map(t=>`<li>${esc(t.text)}${t.dueDate?` — due ${dateFmt(t.dueDate)}`:''}</li>`).join('')}</ol><h2>Barriers and support</h2><div class="box">${esc(r.barriers||'No barriers recorded.')}</div><h2>Agreement</h2><div class="box">Employer involved: ${r.employerInvolved==='yes'?'Yes':'No'}\n${esc(r.agreement||'')}</div><h2>Signatures</h2><div class="stats"><div class="stat">Learner<b>${r.signatures?.learner?'Signed':'Not signed'}</b>${r.signatures?.learner?`<img src="${r.signatures.learner}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Employer / representative<b>${r.signatures?.employer?'Signed':'Not signed'}</b>${r.signatures?.employer?`<img src="${r.signatures.employer}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Vocational Coach<b>${r.signatures?.coach?'Signed':'Not signed'}</b>${r.signatures?.coach?`<img src="${r.signatures.coach}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div></div><div class="foot">Generated by Assessor+ V4.5</div><script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`);w.document.close()}
+function printReview(r){const l=reviewLearner(r.learnerId),a=attendanceStats(r.learnerId),m=learnerSessionMetrics(r.learnerId);const w=window.open('','_blank');if(!w)return alert('Allow pop-ups to create the PDF.');w.document.write(`<!doctype html><html><head><title>${esc(r.learnerName)} Review</title><style>body{font-family:Arial,sans-serif;color:#222;margin:32px;font-size:12px}h1{font-size:22px;margin:0 0 4px;color:#5b21b6}h2{font-size:14px;border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:20px}.meta{color:#666}.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;margin:16px 0}.stat{padding:10px;border-right:1px solid #ccc}.stat:last-child{border:0}.stat b{display:block;font-size:16px}.box{border:1px solid #ccc;padding:10px;white-space:pre-wrap}.targets{padding-left:20px}.targets li{margin:7px 0}.foot{margin-top:24px;color:#666;font-size:10px}@media print{button{display:none}}</style></head><body><h1>Professional Apprenticeship Review</h1><div class="meta">${esc(r.learnerName)} · ${dateFmt(r.reviewDate)} · Next review ${dateFmt(r.nextReviewDate)}</div><div class="stats"><div class="stat">Attendance<b>${Math.min(100,a.percent)}%</b></div><div class="stat">Expected<b>${minText(a.expected)}</b></div><div class="stat">Attended<b>${minText(a.actual)}</b></div><div class="stat">RAG<b>${esc(r.rag)}</b></div></div><h2>Tutor summary</h2><div class="box">${esc(r.tutorSummary)}</div><h2>Learner comments</h2><div class="box">${esc(r.learnerComments||'No comments recorded.')}</div><h2>Employer comments</h2><div class="box">${esc(r.employerComments||'No comments recorded.')}</div><h2>Attendance detail</h2><div class="box">Late sessions: ${m.lateSessions}\nLateness: ${minText(m.lateMinutes)}\nAbsent sessions: ${m.absentSessions}\nMissed time: ${minText(m.absentMinutes)}</div><h2>Agreed action plan</h2><ol class="targets">${r.targets.map(t=>`<li>${esc(t.text)}${t.dueDate?` — due ${dateFmt(t.dueDate)}`:''}</li>`).join('')}</ol><h2>Barriers and support</h2><div class="box">${esc(r.barriers||'No barriers recorded.')}</div><h2>Agreement</h2><div class="box">Employer involved: ${r.employerInvolved==='yes'?'Yes':'No'}\n${esc(r.agreement||'')}</div><h2>Signatures</h2><div class="stats"><div class="stat">Learner<b>${r.signatures?.learner?'Signed':'Not signed'}</b>${r.signatures?.learner?`<img src="${r.signatures.learner}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Employer / representative<b>${r.signatures?.employer?'Signed':'Not signed'}</b>${r.signatures?.employer?`<img src="${r.signatures.employer}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div><div class="stat">Vocational Coach<b>${r.signatures?.coach?'Signed':'Not signed'}</b>${r.signatures?.coach?`<img src="${r.signatures.coach}" style="width:100%;height:55px;object-fit:contain;margin-top:5px">`:''}</div></div><div class="foot">Generated by Assessor+ V4.6</div><script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`);w.document.close()}
 function handleReviewFile(file){const reader=new FileReader();reader.onload=()=>{try{$('reviewImportText').value=String(reader.result||'');parseReviewImportText()}catch(e){alert('Could not read the selected file.')}};reader.readAsText(file)}
 let reviewQrDetector=null;
 let reviewScanBusy=false;
@@ -1225,8 +1219,33 @@ $('reviewScanRetry')?.addEventListener('click',beginReviewQrCamera);
 $('reviewScanImage')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(f)scanReviewQrImage(f);e.target.value=''});
 $('reviewImportFile')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(f)handleReviewFile(f)});
 
+
+function bindInstantLearnerSearch(inputId, handler){
+  const input=document.getElementById(inputId);
+  if(!input)return;
+  const run=()=>handler();
+  input.addEventListener('input',run);
+  input.addEventListener('search',run);
+  input.addEventListener('keyup',run);
+  input.addEventListener('change',run);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  bindInstantLearnerSearch('learnerSearch',renderLearners);
+  bindInstantLearnerSearch('classLearnerSearch',()=>renderClassLearnerChecks());
+  bindInstantLearnerSearch('reviewAttachSearch',()=>filterLearnerSelect('reviewAttachSearch','reviewAttachLearner'));
+  bindInstantLearnerSearch('reviewLearnerSearch',renderReviewLearnerPicker);
+});
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-review-learner]');
+  if(!b)return;
+  closeM('reviewLearnerPickerModal');
+  openReviewEditor(null,b.dataset.reviewLearner,null);
+});
+
 (() => {
-  const APP_VERSION = '4.1';
+  const APP_VERSION = '4.6';
   const RELEASE_NOTES = [
     'Replaced Assessments with professional Reviews.',
     'Added reliable return-review QR codes using a compact review summary.',
@@ -1296,7 +1315,7 @@ $('reviewImportFile')?.addEventListener('change',e=>{const f=e.target.files?.[0]
     });
     window.addEventListener('load', async () => {
       try {
-        const reg = await navigator.serviceWorker.register('./sw.js?v=4.5', { updateViaCache: 'none' });
+        const reg = await navigator.serviceWorker.register('./sw.js?v=4.6', { updateViaCache: 'none' });
         inspectRegistration(reg);
         setStatus('Assessor+ is up to date');
         await reg.update().catch(() => {});

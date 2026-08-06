@@ -1,4 +1,4 @@
-const CACHE = 'assessorplus-v4-5-register-recovery';
+const CACHE = 'assessorplus-v4-6-instant-search';
 const ASSETS = [
   './',
   './index.html',
