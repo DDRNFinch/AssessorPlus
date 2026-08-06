@@ -1,4 +1,4 @@
-const CACHE = 'assessorplus-v5.0';
+const CACHE = 'assessorplus-v5.1';
 const ASSETS = [
   './',
   './index.html',

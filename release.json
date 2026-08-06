@@ -1,10 +1,10 @@
 {
-  "version": "5.0",
+  "version": "V5.1",
+  "released": "2026-08-06",
   "notes": [
-    "Completed a full smoke test of the Assessor+ core workflows.",
-    "Fixed the missing professional-review snapshot attach and delete actions.",
-    "Verified and restored the Missed Registers tab and overdue-register recovery flow.",
-    "Corrected the Settings version, service-worker cache and update metadata.",
-    "Removed stale legacy files that were no longer used by the live app."
+    "Added separate Active and Withdrawn learner tabs.",
+    "Learners can be withdrawn while retaining attendance, review and register history.",
+    "Withdrawn learners can be reinstated from their profile.",
+    "Withdrawn learners are excluded from new registers, missed-register recovery and new reviews."
   ]
 }
